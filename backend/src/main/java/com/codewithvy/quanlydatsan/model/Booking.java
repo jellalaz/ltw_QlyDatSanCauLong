@@ -1,0 +1,69 @@
+package com.codewithvy.quanlydatsan.model;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "booking")
+public class Booking {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    // Xóa court_id vì thông tin này nằm trong BookingItem
+    // Xóa startTime, endTime vì thông tin này nằm trong BookingItem
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingItem> bookingItems = new ArrayList<>();
+
+    // XÓA totalPrice - Vi phạm 3NF (dữ liệu dẫn xuất)
+    // Tính động từ BookingItems: getTotalPrice()
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookingStatus status;
+
+    // Thời gian hết hạn thanh toán
+    @Column(nullable = false)
+    private LocalDateTime expireTime;
+
+    // Thông tin chứng minh chuyển khoản
+    @Column
+    private Boolean paymentProofUploaded = false;
+
+    @Column
+    private String paymentProofUrl;
+
+    @Column
+    private LocalDateTime paymentProofUploadedAt;
+
+    // Lý do từ chối (nếu có)
+    @Column(length = 500)
+    private String rejectionReason;
+
+    /**
+     * Tính tổng giá trị booking từ tất cả BookingItems
+     * Tuân thủ 3NF - không lưu dữ liệu dẫn xuất
+     */
+    @Transient
+    public Double getTotalPrice() {
+        if (bookingItems == null || bookingItems.isEmpty()) {
+            return 0.0;
+        }
+        return bookingItems.stream()
+                .mapToDouble(BookingItem::getPrice)
+                .sum();
+    }
+}

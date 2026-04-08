@@ -1,0 +1,31 @@
+package com.codewithvy.quanlydatsan.model;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Entity biểu diễn một sân (Court) thuộc về một địa điểm (Venues).
+ */
+@Entity
+@Table(name = "court")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Court {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // id sân
+
+    private String description; // mô tả sân
+
+    @Column(nullable = false)
+    private Boolean isActive = true; // Trạng thái sân (true: hoạt động, false: tạm ngưng)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "venues_id", nullable = false)
+    @JsonBackReference // back reference to avoid cyclic serialization (child -> parent)
+    private Venues venues; // venues mà sân này trực thuộc
+}
