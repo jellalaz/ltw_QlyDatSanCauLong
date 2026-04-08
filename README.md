@@ -17,7 +17,7 @@ Project sử dụng các file cấu hình riêng cho mỗi máy (`application.pr
 **Copy nội dung sau vào file và THAY ĐỔI username/password MySQL của bạn:**
 
 ```properties
-spring.application.name=QuanLyDatSan
+spring.application.name=QlySanCauLong
 server.port=8080
 
 ## Cau hinh ket noi den database MySQL
