@@ -21,7 +21,7 @@ spring.application.name=QuanLyDatSan
 server.port=8080
 
 ## Cau hinh ket noi den database MySQL
-spring.datasource.url=jdbc:mysql://127.0.0.1:3306/quanlydatsan?createDatabaseIfNotExist=true
+spring.datasource.url=jdbc:mysql://127.0.0.1:3306/QlySanCauLong?createDatabaseIfNotExist=true
 spring.datasource.username= <Tai khoan MySQL cua ban>
 spring.datasource.password= <Mat khau MySQL cua ban>
 
