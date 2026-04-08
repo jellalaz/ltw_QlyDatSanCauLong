@@ -65,9 +65,11 @@ public class Venues {
     @JsonManagedReference // parent reference to allow serializing courts without cycle
     private List<Court> courts; // danh sách sân trực thuộc venues
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "address_id", nullable = false)
-    private Address address; // địa chỉ nơi venues tọa lạc
+    // Owning side of 1-1 relationship with Address
+    // Venues sở hữu foreign key address_id
+    @OneToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "address_id", nullable = false, unique = true)
+    private Address address; // địa chỉ nơi venues tọa lạc (1-1 relationship - owning side)
 
     // XÓA averageRating và totalReviews - sẽ tính toán động từ bảng review
     // Tuân thủ chuẩn 3NF: không lưu dữ liệu dẫn xuất

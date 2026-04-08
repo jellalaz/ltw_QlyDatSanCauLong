@@ -29,6 +29,18 @@ public class JwtUtils {
                 .compact();
     }
 
+    /**
+     * Generate JWT token from User entity (used during signup)
+     */
+    public String generateJwtTokenFromUser(com.codewithvy.quanlydatsan.model.User user) {
+        return Jwts.builder()
+                .setSubject(user.getPhone())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build()
                 .parseClaimsJws(token).getBody().getSubject();

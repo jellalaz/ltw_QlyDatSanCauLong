@@ -104,7 +104,7 @@ public class AuthController {
                     .map(org.springframework.security.core.GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
             JwtResponse jwtResp = new JwtResponse(jwt, userDetails.getId(), userDetails.getPhone(), roles);
-            return ResponseEntity.ok(ApiResponse.ok(jwtResp, "Login success"));
+            return ResponseEntity.ok(ApiResponse.ok(jwtResp, "Đăng nhập thành công"));
         } catch (org.springframework.security.authentication.BadCredentialsException ex) {
             return ResponseEntity.status(401)
                     .body(ApiResponse.fail("Số điện thoại hoặc mật khẩu không đúng"));
@@ -129,14 +129,40 @@ public class AuthController {
             description = "Số điện thoại hoặc email đã tồn tại, hoặc mật khẩu không khớp"
         )
     })
-    public ResponseEntity<ApiResponse<String>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        logger.info("Register request received: {}", signUpRequest);
+    public ResponseEntity<ApiResponse<JwtResponse>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+        return performSignup(signUpRequest);
+    }
+
+    @PostMapping("/signup")
+    @Operation(
+        summary = "Đăng ký tài khoản mới (alias cho /register)",
+        description = "Tạo tài khoản người dùng mới với vai trò mặc định là ROLE_USER"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Đăng ký thành công"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Số điện thoại hoặc email đã tồn tại, hoặc mật khẩu không khớp"
+        )
+    })
+    public ResponseEntity<ApiResponse<JwtResponse>> signupUser(@Valid @RequestBody SignupRequest signUpRequest) {
+        return performSignup(signUpRequest);
+    }
+
+    /**
+     * Perform signup logic
+     */
+    private ResponseEntity<ApiResponse<JwtResponse>> performSignup(@Valid SignupRequest signUpRequest) {
+        logger.info("Signup request received: {}", signUpRequest);
 
 
         // Kiểm tra mật khẩu khớp
         if (!signUpRequest.getPassword().equals(signUpRequest.getConfirmPassword())) {
             logger.warn("Password mismatch for phone: {}", signUpRequest.getPhone());
-            return ResponseEntity.badRequest().body(ApiResponse.fail("Passwords do not match"));
+            return ResponseEntity.badRequest().body(ApiResponse.fail("Mật khẩu xác nhận không khớp"));
         }
 
         // Kiểm tra phone tồn tại - có log chi tiết
@@ -153,7 +179,7 @@ public class AuthController {
                 logger.error("Phone {} exists but findByPhone returns empty - possible data inconsistency!",
                     signUpRequest.getPhone());
             }
-            return ResponseEntity.badRequest().body(ApiResponse.fail("Phone is already in use"));
+            return ResponseEntity.badRequest().body(ApiResponse.fail("Số điện thoại đã được đăng ký"));
         }
 
         // Kiểm tra email tồn tại - có log chi tiết
@@ -169,7 +195,7 @@ public class AuthController {
                 logger.error("Email {} exists but findByEmail returns empty - possible data inconsistency!",
                     signUpRequest.getEmail());
             }
-            return ResponseEntity.badRequest().body(ApiResponse.fail("Email is already in use"));
+            return ResponseEntity.badRequest().body(ApiResponse.fail("Email đã được đăng ký"));
         }
 
         logger.info("Creating new user with phone: {} and email: {}",
@@ -192,7 +218,14 @@ public class AuthController {
         User savedUser = userRepository.save(user);
         logger.info("User registered successfully - ID: {}, Phone: {}", savedUser.getId(), savedUser.getPhone());
 
-        return ResponseEntity.ok(ApiResponse.ok("User registered successfully", "Registered"));
+        // Generate JWT token for the new user
+        List<String> rolesList = savedUser.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+        String jwtToken = jwtUtils.generateJwtTokenFromUser(savedUser);
+        JwtResponse jwtResponse = new JwtResponse(jwtToken, savedUser.getId(), savedUser.getPhone(), rolesList);
+
+        return ResponseEntity.ok(ApiResponse.ok(jwtResponse, "Đăng ký thành công"));
     }
 
     @PostMapping("/forgot-password")
@@ -212,7 +245,7 @@ public class AuthController {
     })
     public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         if (request.getEmail() == null || request.getEmail().isBlank()) {
-            return ResponseEntity.badRequest().body(ApiResponse.fail("Email is required"));
+            return ResponseEntity.badRequest().body(ApiResponse.fail("Email là bắt buộc"));
         }
         // Tạo token (nếu email có tồn tại) và gửi – tránh lộ thông tin email tồn tại hay không.
         try {
@@ -222,7 +255,7 @@ public class AuthController {
         } catch (ResourceNotFoundException ex) {
             // bỏ qua để tránh dò email
         }
-        return ResponseEntity.ok(ApiResponse.ok("Nếu email hợp lệ, mã đặt lại đã được gửi", "Sent"));
+        return ResponseEntity.ok(ApiResponse.ok("Nếu email hợp lệ, mã đặt lại đã được gửi", "Gửi thành công"));
     }
 
     @PostMapping("/reset-password")
@@ -305,7 +338,7 @@ public class AuthController {
             logger.info("User {} changed password successfully", phone);
 
             return ResponseEntity.ok(
-                ApiResponse.ok("Đổi mật khẩu thành công", "Password changed successfully"));
+                ApiResponse.ok("Đổi mật khẩu thành công", "Thành công"));
 
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(404)

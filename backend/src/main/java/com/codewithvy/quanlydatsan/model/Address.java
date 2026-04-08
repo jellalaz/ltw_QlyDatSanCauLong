@@ -9,7 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Entity lưu địa chỉ hành chính (tỉnh/thành, quận/huyện, địa chỉ chi tiết).
- * Một địa chỉ có thể gắn với nhiều Venues.
+ * Một địa chỉ gắn với một Venues duy nhất (1-1 relationship).
+ * Address là inverse side - không sở hữu foreign key.
  */
 @Entity
 @Table(name = "address")
@@ -28,7 +29,9 @@ public class Address {
     @Column(nullable = false)
     private String detailAddress; // Địa chỉ chi tiết
 
-    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Inverse side - không sở hữu foreign key
+    // Không dùng cascade hoặc orphanRemoval ở đây
+    @OneToOne(mappedBy = "address")
     @JsonIgnore // tránh vòng lặp Address -> Venues -> Address khi serialize JSON
-    private List<Venues> venues; // danh sách venues thuộc địa chỉ này
+    private Venues venues; // venues thuộc địa chỉ này (1-1 relationship - inverse side)
 }
