@@ -10,6 +10,7 @@ function Login() {
   const navigate = useNavigate();
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -19,20 +20,13 @@ function Login() {
     setLoading(true);
 
     try {
-      // Validate dữ liệu
-      if (!phone.trim()) {
-        throw new Error('Vui lòng nhập số điện thoại');
-      }
-
-      if (!password.trim()) {
-        throw new Error('Vui lòng nhập mật khẩu');
-      }
+      if (!phone.trim()) throw new Error('Vui lòng nhập số điện thoại');
+      if (!password.trim()) throw new Error('Vui lòng nhập mật khẩu');
 
       const loginData = { phone: phone.trim(), password };
       await AuthController.login(loginData);
       navigate('/home');
     } catch (err) {
-      // Hiển thị lỗi chi tiết từ server hoặc validation
       const errorMessage = err.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
       setError(errorMessage);
       console.error('Login error:', err);
@@ -44,8 +38,9 @@ function Login() {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        <div style={{ textAlign: 'center', fontSize: '40px', marginBottom: '4px' }}>🏸</div>
         <h1 className="auth-title">Đăng Nhập</h1>
-        <p className="auth-subtitle">Quản lý dặt sân cầu lông</p>
+        <p className="auth-subtitle">Hệ thống quản lý đặt sân cầu lông</p>
 
         {error && (
           <div className="error-message">
@@ -55,7 +50,7 @@ function Login() {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="phone">Số Điện Thoại</label>
+            <label htmlFor="phone">📱 Số Điện Thoại</label>
             <input
               id="phone"
               type="tel"
@@ -68,16 +63,36 @@ function Login() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Mật Khẩu</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Nhập mật khẩu"
-              disabled={loading}
-              required
-            />
+            <label htmlFor="password">🔒 Mật Khẩu</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                id="password"
+                type={showPass ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Nhập mật khẩu"
+                disabled={loading}
+                style={{ paddingRight: '44px', width: '100%', boxSizing: 'border-box' }}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  color: '#888',
+                }}
+              >
+                {showPass ? '🙈' : '👁️'}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="btn-primary" disabled={loading}>
@@ -87,11 +102,16 @@ function Login() {
 
         <p className="auth-link">
           Chưa có tài khoản?{' '}
-          <a href="/signup" onClick={(e) => {
-            e.preventDefault();
-            navigate('/signup');
-          }}>
+          <a href="/signup" onClick={(e) => { e.preventDefault(); navigate('/signup'); }}>
             Đăng ký ngay
+          </a>
+        </p>
+        <p className="auth-link">
+          <a
+            href="/forgot-password"
+            onClick={(e) => { e.preventDefault(); navigate('/forgot-password'); }}
+          >
+            Quên mật khẩu?
           </a>
         </p>
       </div>
@@ -100,4 +120,3 @@ function Login() {
 }
 
 export default Login;
-

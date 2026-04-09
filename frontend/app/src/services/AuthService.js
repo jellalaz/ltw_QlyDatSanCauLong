@@ -22,6 +22,42 @@ class AuthService {
   }
 
   /**
+   * Gửi yêu cầu quên mật khẩu – backend gửi token về email
+   * @param {string} email - Email của tài khoản
+   * @returns {Promise<Response>}
+   */
+  static forgotPassword(email) {
+    return axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
+  }
+
+  /**
+   * Đặt lại mật khẩu bằng token nhận được qua email
+   * @param {string} token       - Token nhận được trong email
+   * @param {string} newPassword - Mật khẩu mới
+   * @returns {Promise<Response>}
+   */
+  static resetPassword(token, newPassword) {
+    return axios.post(`${API_BASE_URL}/auth/reset-password`, { token, newPassword });
+  }
+
+  /**
+   * Đổi mật khẩu khi đã đăng nhập (cần Bearer token)
+   * @param {string} currentPassword  - Mật khẩu hiện tại
+   * @param {string} newPassword      - Mật khẩu mới
+   * @param {string} confirmPassword  - Xác nhận mật khẩu mới
+   * @returns {Promise<Response>}
+   */
+  static changePassword(currentPassword, newPassword, confirmPassword) {
+    return axios.post(`${API_BASE_URL}/auth/change-password`, {
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    });
+  }
+
+
+
+  /**
    * Lưu token vào localStorage
    */
   static setToken(token) {

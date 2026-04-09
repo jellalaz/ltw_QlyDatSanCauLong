@@ -6,14 +6,19 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.codewithvy.quanlydatsan.model.Role;
+import com.codewithvy.quanlydatsan.model.User;
 import com.codewithvy.quanlydatsan.repository.RoleRepository;
+import com.codewithvy.quanlydatsan.repository.UserRepository;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TimeZone;
 
 /**
  * Điểm vào chính của ứng dụng Spring Boot (hàm main chạy app).
- * Có kèm CommandLineRunner để seed một số role mặc định vào DB nếu chưa có.
+ * Có kèm CommandLineRunner để seed role mặc định và tài khoản Admin ban đầu.
  */
 @SpringBootApplication
 @EnableScheduling
@@ -27,26 +32,60 @@ public class QuanLyDatSanApplication {
     }
 
     /**
-     * Seed các role mặc định (ROLE_USER, ROLE_OWNER, ROLE_ADMIN) khi app khởi động lần đầu.
+     * Seed các role và tài khoản Admin mặc định khi app khởi động lần đầu.
+     *
+     * Tài khoản Admin mặc định:
+     * - Số điện thoại : 0900000000
+     * - Email : admin@sancaulong.vn
+     * - Mật khẩu : admin123
+     *
+     * ⚠️ Đổi mật khẩu ngay sau khi deploy lên production!
      */
     @Bean
-    public CommandLineRunner initRoles(@Autowired RoleRepository roleRepository) {
+    public CommandLineRunner initData(
+            @Autowired RoleRepository roleRepository,
+            @Autowired UserRepository userRepository,
+            @Autowired PasswordEncoder passwordEncoder) {
         return args -> {
+
+            // --- 1. Seed Roles ---
             if (roleRepository.findByName("ROLE_USER").isEmpty()) {
-                Role userRole = new Role();
-                userRole.setName("ROLE_USER");
-                roleRepository.save(userRole);
+                Role r = new Role();
+                r.setName("ROLE_USER");
+                roleRepository.save(r);
             }
-            // Seed ROLE_OWNER để phục vụ đăng ký tài khoản chủ sân
             if (roleRepository.findByName("ROLE_OWNER").isEmpty()) {
-                Role ownerRole = new Role();
-                ownerRole.setName("ROLE_OWNER");
-                roleRepository.save(ownerRole);
+                Role r = new Role();
+                r.setName("ROLE_OWNER");
+                roleRepository.save(r);
             }
             if (roleRepository.findByName("ROLE_ADMIN").isEmpty()) {
-                Role adminRole = new Role();
-                adminRole.setName("ROLE_ADMIN");
-                roleRepository.save(adminRole);
+                Role r = new Role();
+                r.setName("ROLE_ADMIN");
+                roleRepository.save(r);
+            }
+
+            // --- 2. Seed tài khoản Admin mặc định (chỉ tạo 1 lần) ---
+            String adminPhone = "0900000000";
+            if (userRepository.findByPhone(adminPhone).isEmpty()) {
+                Role adminRole = roleRepository.findByName("ROLE_ADMIN")
+                        .orElseThrow(() -> new RuntimeException("ROLE_ADMIN not found"));
+
+                Set<Role> roles = new HashSet<>();
+                roles.add(adminRole);
+
+                User admin = new User();
+                admin.setFullname("Quản Trị Viên");
+                admin.setPhone(adminPhone);
+                admin.setEmail("admin@sancaulong.vn");
+                admin.setPassword(passwordEncoder.encode("admin123"));
+                admin.setRoles(roles);
+
+                userRepository.save(admin);
+                System.out.println("[SEED] Tài khoản Admin đã được tạo:");
+                System.out.println("   📱 Phone   : " + adminPhone);
+                System.out.println("   📧 Email   : admin@sancaulong.vn");
+                System.out.println("   🔑 Password: admin123");
             }
         };
     }
