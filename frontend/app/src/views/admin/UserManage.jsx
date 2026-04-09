@@ -1,21 +1,73 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import PageHeader from '../../components/common/PageHeader';
+import AdminService from '../../services/AdminService';
 import '../../styles/Layout.css';
 
 /**
  * UserManage - Quản lý người dùng toàn hệ thống (ADMIN)
- * TODO:
- *   - Gọi API lấy toàn bộ user (cần bổ sung backend AdminController)
- *   - Implement: Khóa tài khoản, đổi role USER → OWNER
+ * Dùng API admin/users + admin/users/{id}/roles
  */
 function UserManage() {
   const [search, setSearch] = useState('');
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [updatingUserId, setUpdatingUserId] = useState(null);
 
-  const mockUsers = [
-    { id: 1, fullname: 'Nguyễn Văn A', phone: '0901234567', email: 'a@email.com', roles: ['ROLE_USER'], status: 'ACTIVE' },
-    { id: 2, fullname: 'Trần Thị B', phone: '0912345678', email: 'b@email.com', roles: ['ROLE_OWNER', 'ROLE_USER'], status: 'ACTIVE' },
-    { id: 3, fullname: 'Lê Văn C', phone: '0923456789', email: 'c@email.com', roles: ['ROLE_USER'], status: 'BANNED' },
-  ];
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const response = await AdminService.getUsers();
+      setUsers(response?.data?.data || []);
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message || 'Không thể tải danh sách user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const filteredUsers = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
+    if (!keyword) return users;
+
+    return users.filter((u) =>
+      [u.fullname, u.phone, u.email].some((field) =>
+        String(field || '').toLowerCase().includes(keyword)
+      )
+    );
+  }, [users, search]);
+
+  const setRoles = async (user, nextRoles) => {
+    try {
+      setUpdatingUserId(user.id);
+      await AdminService.updateUserRoles(user.id, nextRoles);
+      await loadUsers();
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message || 'Cập nhật role thất bại');
+    } finally {
+      setUpdatingUserId(null);
+    }
+  };
+
+  const toggleRole = async (user, role) => {
+    const roleSet = new Set(user.roles || []);
+    if (roleSet.has(role)) {
+      roleSet.delete(role);
+    } else {
+      roleSet.add(role);
+    }
+
+    if (roleSet.size === 0) {
+      roleSet.add('ROLE_USER');
+    }
+
+    await setRoles(user, Array.from(roleSet));
+  };
 
   const roleLabel = (roles) => {
     if (roles.includes('ROLE_ADMIN')) return <span className="badge badge-danger">Admin</span>;
@@ -43,51 +95,55 @@ function UserManage() {
         </div>
       </div>
 
+      {error && <div style={{ marginBottom: '12px' }} className="badge badge-danger">{error}</div>}
+
       <div className="card">
-        <div className="table-wrapper">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Họ tên</th>
-                <th>Liên hệ</th>
-                <th>Vai trò</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockUsers.map((u) => (
-                <tr key={u.id}>
-                  <td style={{ fontWeight: '600' }}>{u.fullname}</td>
-                  <td>
-                    <div style={{ fontSize: '13px' }}>{u.phone}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{u.email}</div>
-                  </td>
-                  <td>{roleLabel(u.roles)}</td>
-                  <td>
-                    <span className={`badge ${u.status === 'ACTIVE' ? 'badge-success' : 'badge-danger'}`}>
-                      {u.status === 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      {!u.roles.includes('ROLE_OWNER') && (
-                        <button className="btn btn-secondary btn-sm">
-                          ⬆️ Lên Chủ Sân {/* TODO: API đổi role */}
-                        </button>
-                      )}
-                      {u.status === 'ACTIVE' ? (
-                        <button className="btn btn-danger btn-sm">🔒 Khóa</button>
-                      ) : (
-                        <button className="btn btn-success btn-sm">🔓 Mở khóa</button>
-                      )}
-                    </div>
-                  </td>
+        {loading ? (
+          <div className="card-body">Đang tải danh sách user...</div>
+        ) : (
+          <div className="table-wrapper">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Họ tên</th>
+                  <th>Liên hệ</th>
+                  <th>Vai trò</th>
+                  <th>Hành động</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {filteredUsers.map((u) => (
+                  <tr key={u.id}>
+                    <td style={{ fontWeight: '600' }}>{u.fullname}</td>
+                    <td>
+                      <div style={{ fontSize: '13px' }}>{u.phone}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{u.email}</div>
+                    </td>
+                    <td>{roleLabel(u.roles || [])}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => toggleRole(u, 'ROLE_OWNER')}
+                          disabled={updatingUserId === u.id}
+                        >
+                          Toggle OWNER
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => toggleRole(u, 'ROLE_ADMIN')}
+                          disabled={updatingUserId === u.id}
+                        >
+                          Toggle ADMIN
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,10 +5,15 @@ import com.codewithvy.quanlydatsan.dto.AdminRoleUpdateRequest;
 import com.codewithvy.quanlydatsan.dto.ApiResponse;
 import com.codewithvy.quanlydatsan.dto.BookingResponse;
 import com.codewithvy.quanlydatsan.dto.UserDTO;
+import com.codewithvy.quanlydatsan.dto.VenuesDTO;
 import com.codewithvy.quanlydatsan.model.Booking;
 import com.codewithvy.quanlydatsan.model.BookingStatus;
 import com.codewithvy.quanlydatsan.model.User;
+import com.codewithvy.quanlydatsan.model.Venues;
 import com.codewithvy.quanlydatsan.repository.BookingRepository;
+import com.codewithvy.quanlydatsan.repository.VenuesRepository;
+import com.codewithvy.quanlydatsan.exception.ResourceNotFoundException;
+import com.codewithvy.quanlydatsan.mapper.VenuesMapper;
 import com.codewithvy.quanlydatsan.service.BookingService;
 import com.codewithvy.quanlydatsan.service.UserService;
 import jakarta.validation.Valid;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 
@@ -31,13 +37,16 @@ public class AdminController {
     private final UserService userService;
     private final BookingService bookingService;
     private final BookingRepository bookingRepository;
+    private final VenuesRepository venuesRepository;
 
     public AdminController(UserService userService,
                            BookingService bookingService,
-                           BookingRepository bookingRepository) {
+                           BookingRepository bookingRepository,
+                           VenuesRepository venuesRepository) {
         this.userService = userService;
         this.bookingService = bookingService;
         this.bookingRepository = bookingRepository;
+        this.venuesRepository = venuesRepository;
     }
 
     @GetMapping("/users")
@@ -77,5 +86,21 @@ public class AdminController {
                 .build();
 
         return ResponseEntity.ok(ApiResponse.ok(stats, "Lấy thống kê admin thành công"));
+    }
+
+    @GetMapping("/venues")
+    public ResponseEntity<ApiResponse<List<VenuesDTO>>> getAllVenues() {
+        List<VenuesDTO> venues = venuesRepository.findAll().stream()
+                .map(VenuesMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.ok(venues, "Lấy danh sách venues toàn hệ thống thành công"));
+    }
+
+    @DeleteMapping("/venues/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteVenue(@PathVariable Long id) {
+        Venues venue = venuesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Venue not found with id: " + id));
+        venuesRepository.delete(venue);
+        return ResponseEntity.ok(ApiResponse.ok(null, "Đã xóa venue thành công"));
     }
 }

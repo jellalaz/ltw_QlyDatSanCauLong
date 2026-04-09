@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
-import MainLayout from '../components/layout/MainLayout';
+import UserLayout from '../components/layout/UserLayout';
 
 // Admin Views
 import AdminDashboard from '../views/admin/AdminDashboard';
@@ -9,14 +9,14 @@ import VenueModerate from '../views/admin/VenueModerate';
 
 /**
  * Các route dành cho ADMIN (cần role ROLE_ADMIN)
- * Được lồng vào MainLayout (Sidebar dọc)
+ * Hiển thị tách biệt từng màn, dùng UserLayout (header ngang)
  */
 const adminRoutes = [
   <Route
     key="admin-layout"
     element={
       <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
-        <MainLayout role="admin" />
+        <UserLayout />
       </ProtectedRoute>
     }
   >

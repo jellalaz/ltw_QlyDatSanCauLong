@@ -18,7 +18,7 @@ function Profile() {
   const [success, setSuccess] = useState('');
 
   // State cho form nâng cấp lên Chủ Sân
-  const [showOwnerForm, setShowOwnerForm] = useState(false);
+  const [_showOwnerForm, setShowOwnerForm] = useState(false);
   const [requestingOwner, setRequestingOwner] = useState(false);
   const [ownerError, setOwnerError] = useState('');
   const [ownerSuccess, setOwnerSuccess] = useState('');
@@ -550,5 +550,4 @@ function Profile() {
 }
 
 export default Profile;
-
 

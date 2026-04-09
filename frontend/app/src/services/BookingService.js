@@ -4,7 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
 /**
  * BookingService - Gọi các API liên quan đến Đặt sân (Bookings)
- * Tương ứng với: BookingController.java
+ * Đồng bộ theo endpoint thực tế của BookingController.java
  */
 class BookingService {
   /** [USER] Tạo đơn đặt sân mới */
@@ -17,37 +17,57 @@ class BookingService {
     return axios.get(`${API_BASE_URL}/bookings/my-bookings`);
   }
 
-  /** [USER] Hủy đơn đặt sân (nếu còn trong điều kiện) */
+  /** [USER] Hủy đơn đặt sân */
   static cancel(bookingId) {
     return axios.put(`${API_BASE_URL}/bookings/${bookingId}/cancel`);
   }
 
-  /** [USER] Thanh toán đơn */
-  static pay(bookingId) {
-    return axios.put(`${API_BASE_URL}/bookings/${bookingId}/pay`);
+  /** [USER] Xác nhận thanh toán (sau khi upload biên lai) */
+  static pay(bookingId, paymentProofUrl) {
+    return axios.put(`${API_BASE_URL}/bookings/${bookingId}/confirm-payment`, { paymentProofUrl });
   }
 
-  /** [OWNER] Lấy tất cả đơn đặt sân của cơ sở mình */
+  /** [OWNER] Lấy danh sách đơn chờ duyệt */
+  static getPendingBookingsForOwner() {
+    return axios.get(`${API_BASE_URL}/bookings/pending`);
+  }
+
+  /** [OWNER] Lấy tất cả đơn của owner */
+  static getAllBookingsForOwner() {
+    return axios.get(`${API_BASE_URL}/bookings/owner/all-bookings`);
+  }
+
+  /** [OWNER] API cũ gọi chung danh sách booking */
   static getOwnerBookings(params = {}) {
-    return axios.get(`${API_BASE_URL}/bookings/owner`, { params });
+    return axios.get(`${API_BASE_URL}/bookings/owner/all-bookings`, { params });
   }
 
-  /** [OWNER] Phê duyệt đơn đặt sân */
+  /** [OWNER] Chấp thuận đơn */
+  static acceptBooking(bookingId) {
+    return axios.put(`${API_BASE_URL}/bookings/${bookingId}/accept`);
+  }
+
+  /** [OWNER] Từ chối đơn */
+  static rejectBooking(bookingId, rejectionReason) {
+    return axios.put(`${API_BASE_URL}/bookings/${bookingId}/reject`, { rejectionReason });
+  }
+
+  /** [OWNER] Tương thích API controller cũ */
   static approve(bookingId) {
-    return axios.put(`${API_BASE_URL}/bookings/${bookingId}/approve`);
+    return this.acceptBooking(bookingId);
   }
 
-  /** [OWNER] Từ chối đơn đặt sân */
-  static reject(bookingId) {
-    return axios.put(`${API_BASE_URL}/bookings/${bookingId}/reject`);
+  /** [OWNER] Tương thích API controller cũ */
+  static reject(bookingId, rejectionReason) {
+    return this.rejectBooking(bookingId, rejectionReason || 'Không đáp ứng yêu cầu');
   }
 
-  /** [OWNER] Đánh dấu hoàn thành */
-  static finish(bookingId) {
-    return axios.put(`${API_BASE_URL}/bookings/${bookingId}/finish`);
+  /** Placeholder: backend chưa có endpoint finish */
+  static finish() {
+    return Promise.reject(new Error('Endpoint finish chưa được hỗ trợ ở backend hiện tại'));
   }
 
-  /** Xem chi tiết 1 đơn (cả user và owner được xem đơn liên quan) */
+  /** Xem chi tiết 1 đơn */
   static getById(bookingId) {
     return axios.get(`${API_BASE_URL}/bookings/${bookingId}`);
   }

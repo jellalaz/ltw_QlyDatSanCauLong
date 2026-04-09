@@ -18,6 +18,14 @@ class AdminService {
   static getAllBookings() {
     return axios.get(`${API_BASE_URL}/admin/bookings`);
   }
+
+  static getVenues() {
+    return axios.get(`${API_BASE_URL}/admin/venues`);
+  }
+
+  static deleteVenue(venueId) {
+    return axios.delete(`${API_BASE_URL}/admin/venues/${venueId}`);
+  }
 }
 
 export default AdminService;

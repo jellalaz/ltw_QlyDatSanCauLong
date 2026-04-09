@@ -9,19 +9,17 @@ import '../../styles/Layout.css';
  * UserLayout - Layout dùng Header ngang (dành cho USER thông thường)
  */
 function UserLayout() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const cached = localStorage.getItem('currentUser');
+    if (!cached) return null;
+    try {
+      return JSON.parse(cached);
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
-    // Lấy cache trước
-    const cached = localStorage.getItem('currentUser');
-    if (cached) {
-      try {
-        setUser(JSON.parse(cached));
-      } catch {
-        /* ignore */
-      }
-    }
-
     // Fetch mới nhất
     UserService.getCurrentUser()
       .then((res) => {

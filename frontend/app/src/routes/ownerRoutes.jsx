@@ -17,20 +17,21 @@ import BookingManage from '../views/owner/BookingManage';
 const ownerRoutes = [
   <Route
     key="owner-layout"
+    path="/owner"
     element={
       <ProtectedRoute allowedRoles={['ROLE_OWNER']}>
         <MainLayout role="owner" />
       </ProtectedRoute>
     }
   >
-    <Route path="/owner" element={<OwnerDashboard />} />
-    <Route path="/owner/venues" element={<VenueManage />} />
-    <Route path="/owner/venues/new" element={<VenueForm mode="create" />} />
-    <Route path="/owner/venues/:id/edit" element={<VenueForm mode="edit" />} />
-    <Route path="/owner/venues/:venueId/courts" element={<CourtManage />} />
-    <Route path="/owner/venues/:venueId/courts/new" element={<CourtForm mode="create" />} />
-    <Route path="/owner/venues/:venueId/courts/:courtId/edit" element={<CourtForm mode="edit" />} />
-    <Route path="/owner/bookings" element={<BookingManage />} />
+    <Route index element={<OwnerDashboard />} />
+    <Route path="venues" element={<VenueManage />} />
+    <Route path="venues/new" element={<VenueForm mode="create" />} />
+    <Route path="venues/:id/edit" element={<VenueForm mode="edit" />} />
+    <Route path="venues/:venueId/courts" element={<CourtManage />} />
+    <Route path="venues/:venueId/courts/new" element={<CourtForm mode="create" />} />
+    <Route path="venues/:venueId/courts/:courtId/edit" element={<CourtForm mode="edit" />} />
+    <Route path="bookings" element={<BookingManage />} />
   </Route>,
 ];
 
