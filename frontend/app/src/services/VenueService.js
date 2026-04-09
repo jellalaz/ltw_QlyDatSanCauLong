@@ -13,8 +13,8 @@ class VenueService {
   }
 
   /** Tìm kiếm cụm sân theo từ khóa / địa chỉ */
-  static search(keyword) {
-    return axios.get(`${API_BASE_URL}/venues/search`, { params: { keyword } });
+  static search(query) {
+    return axios.get(`${API_BASE_URL}/venues/search`, { params: { q: query } });
   }
 
   /** Xem chi tiết 1 cụm sân */

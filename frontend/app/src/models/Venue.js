@@ -17,18 +17,24 @@ class Venue {
   }
 
   static fromAPI(data) {
+    const imageUrl = data.imageUrl || (Array.isArray(data.images) ? data.images[0] : undefined);
+    const rating = data.rating ?? data.averageRating;
+    const reviewCount = data.reviewCount ?? data.totalReviews;
+    const openTime = data.openTime ?? data.openingTime;
+    const closeTime = data.closeTime ?? data.closingTime;
+
     return new Venue(
       data.id,
       data.name,
       data.description,
       data.address,
-      data.imageUrl,
-      data.openTime,
-      data.closeTime,
+      imageUrl,
+      openTime,
+      closeTime,
       data.status,
       data.ownerId,
-      data.rating,
-      data.reviewCount
+      rating,
+      reviewCount
     );
   }
 }
