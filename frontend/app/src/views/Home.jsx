@@ -105,6 +105,14 @@ function Home() {
               <p>Quản lý sân cầu lông của bạn</p>
             </div>
           )}
+
+          {user?.isAdmin?.() && (
+            <div className="menu-card" onClick={() => navigate('/admin')}>
+              <div className="menu-icon">🛡️</div>
+              <h3>Quản Trị Hệ Thống</h3>
+              <p>Thống kê hệ thống và quản lý quyền người dùng</p>
+            </div>
+          )}
         </div>
       </main>
 
@@ -117,4 +125,3 @@ function Home() {
 }
 
 export default Home;
-

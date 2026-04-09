@@ -1,0 +1,142 @@
+.owner-dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.owner-dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.owner-btn-back {
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.owner-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.owner-stat-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e9e9e9;
+  padding: 14px;
+}
+
+.owner-stat-card h3 {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.owner-stat-card p {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.owner-stat-card.highlight {
+  border-color: #8d7cf7;
+  background: #f7f5ff;
+}
+
+.owner-stat-card.success {
+  border-color: #39b36f;
+  background: #f2fff7;
+}
+
+.owner-stat-card.danger {
+  border-color: #d64a4a;
+  background: #fff5f5;
+}
+
+.owner-pending-section h2 {
+  margin-bottom: 12px;
+}
+
+.owner-booking-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.owner-booking-card {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.owner-proof-box h4 {
+  margin-bottom: 8px;
+}
+
+.owner-proof-image {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.owner-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.owner-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.owner-btn-accept {
+  background: #2f9e5b;
+}
+
+.owner-btn-reject {
+  background: #d64a4a;
+}
+
+.owner-loading,
+.owner-error,
+.owner-empty {
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.owner-error {
+  color: #b30000;
+  background: #fff2f2;
+}
+
+@media (max-width: 900px) {
+  .owner-booking-card {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-actions {
+    flex-direction: row;
+  }
+}

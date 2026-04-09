@@ -13,6 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 public class UserService {
 
@@ -99,6 +102,34 @@ public class UserService {
             user.setBankAccountName(request.getBankAccountName());
         }
 
+        return userRepository.save(user);
+    }
+
+    /**
+     * Lấy toàn bộ users (dành cho ADMIN)
+     */
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    /**
+     * Cập nhật danh sách role cho một user (dành cho ADMIN)
+     */
+    @Transactional
+    public User updateUserRoles(Long userId, Set<String> roleNames) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        if (roleNames == null || roleNames.isEmpty()) {
+            throw new IllegalArgumentException("Danh sách role không được để trống");
+        }
+
+        Set<Role> roles = roleNames.stream()
+                .map(roleName -> roleRepository.findByName(roleName)
+                        .orElseThrow(() -> new RoleNotFoundException("Role not found: " + roleName)))
+                .collect(java.util.stream.Collectors.toSet());
+
+        user.setRoles(roles);
         return userRepository.save(user);
     }
 }

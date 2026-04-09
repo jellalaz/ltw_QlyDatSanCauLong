@@ -6,6 +6,9 @@ import Signup from './components/Signup';
 import Home from './views/Home';
 import Profile from './views/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
+import RoleProtectedRoute from './components/RoleProtectedRoute';
+import OwnerDashboard from './views/OwnerDashboard';
+import AdminDashboard from './views/AdminDashboard';
 import './App.css';
 
 function App() {
@@ -36,6 +39,22 @@ function App() {
             <ProtectedRoute>
               <Profile />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/owner"
+          element={
+            <RoleProtectedRoute role="ROLE_OWNER">
+              <OwnerDashboard />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <RoleProtectedRoute role="ROLE_ADMIN">
+              <AdminDashboard />
+            </RoleProtectedRoute>
           }
         />
 

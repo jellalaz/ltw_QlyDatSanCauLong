@@ -13,6 +13,10 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
+    List<Booking> findAllByOrderByIdDesc();
+
+    long countByStatus(BookingStatus status);
+
     List<Booking> findByUserId(Long userId);
 
     // Tìm các booking hết hạn cần auto-cancel
