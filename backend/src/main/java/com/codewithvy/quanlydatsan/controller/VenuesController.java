@@ -49,11 +49,10 @@ public class VenuesController {
     }
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("permitAll()")
     @Operation(
         summary = "Ly danh sch tt c venues",
-        description = "Tr v danh sch tt c cc venues trong h‡ th'ng (yu cu 'ƒng nhp)",
-        security = @SecurityRequirement(name = "bearerAuth")
+        description = "Tr v danh sch tt c cc venues trong h‡ th'ng"
     )
     public ResponseEntity<ApiResponse<List<VenuesDTO>>> getAllVenues() {
         return ResponseEntity.ok(ApiResponse.ok(venuesService.getAll(), "List venues"));
@@ -71,11 +70,10 @@ public class VenuesController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("permitAll()")
     @Operation(
         summary = "Tìm kiếm venues - 1 ô duy nhất",
-        description = "Tìm kiếm venues trong tất cả các trường (tên, tỉnh, quận, địa chỉ) bằng 1 ô input duy nhất. Dễ sử dụng cho search box đơn giản. (yêu cầu đăng nhập)",
-        security = @SecurityRequirement(name = "bearerAuth")
+        description = "Tìm kiếm venues trong tất cả các trường (tên, tỉnh, quận, địa chỉ) bằng 1 ô input duy nhất. Dễ sử dụng cho search box đơn giản."
     )
     public ResponseEntity<ApiResponse<List<VenuesDTO>>> searchVenues(
             @Parameter(description = "Từ khóa tìm kiếm (tìm trong tên, tỉnh, quận, địa chỉ)") @RequestParam(name = "q", required = false) String query) {
@@ -84,11 +82,10 @@ public class VenuesController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("permitAll()")
     @Operation(
         summary = "Lấy thông tin venue theo ID",
-        description = "Trả về thông tin chi tiết của một venue (yêu cầu đăng nhập)",
-        security = @SecurityRequirement(name = "bearerAuth")
+        description = "Trả về thông tin chi tiết của một venue"
     )
     public ResponseEntity<ApiResponse<VenuesDTO>> getVenuesById(
             @Parameter(description = "ID của venue", required = true) @PathVariable Long id) {
@@ -96,11 +93,10 @@ public class VenuesController {
     }
 
     @GetMapping("/{venueId}/courts")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("permitAll()")
     @Operation(
         summary = "Lấy danh sách courts của venue (đơn giản)",
-        description = "Trả về danh sách tất cả courts của venue (KHÔNG bao gồm thông tin availability/booked slots). Sử dụng khi chỉ cần hiển thị danh sách sân đơn giản. (yêu cầu đăng nhập)",
-        security = @SecurityRequirement(name = "bearerAuth")
+        description = "Trả về danh sách tất cả courts của venue (KHÔNG bao gồm thông tin availability/booked slots). Sử dụng khi chỉ cần hiển thị danh sách sân đơn giản."
     )
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getCourtsByVenue(
             @Parameter(description = "ID của venue", required = true) @PathVariable Long venueId) {
@@ -130,7 +126,7 @@ public class VenuesController {
     }
 
     @GetMapping("/{venueId}/courts/availability")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("permitAll()")
     @Operation(
         summary = "Lấy danh sách courts của venue với trạng thái availability",
         description = """
@@ -145,8 +141,7 @@ public class VenuesController {
             - Response bao gồm `openingTime` và `closingTime` để frontend chia thành các ô 30 phút
             - `bookedSlots` chứa danh sách các slot đã được đặt
             - Frontend dựa vào 2 thông tin này để render lịch với trạng thái từng ô
-            """,
-        security = @SecurityRequirement(name = "bearerAuth")
+            """
     )
     public ResponseEntity<ApiResponse<Map<String, Object>>> getCourtsWithAvailability(
             @Parameter(description = "ID của venue", required = true)

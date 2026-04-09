@@ -10,6 +10,8 @@ import ownerRoutes from './ownerRoutes';
 import adminRoutes from './adminRoutes';
 import ProtectedRoute from '../components/ProtectedRoute';
 import UserLayout from '../components/layout/UserLayout';
+import VenueList from '../views/user/VenueList';
+import VenueDetail from '../views/user/VenueDetail';
 
 /**
  * AppRoutes - Tổng hợp toàn bộ routes của ứng dụng
@@ -23,6 +25,11 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
+
+      <Route element={<UserLayout />}>
+        <Route path="/venues" element={<VenueList />} />
+        <Route path="/venues/:id" element={<VenueDetail />} />
+      </Route>
 
       {/* Home - Cần đăng nhập, điều hướng theo role */}
       <Route
@@ -46,8 +53,8 @@ function AppRoutes() {
       {adminRoutes}
 
       {/* Redirect mặc định */}
-      <Route path="/" element={<Navigate to="/home" replace />} />
-      <Route path="*" element={<Navigate to="/home" replace />} />
+      <Route path="/" element={<Navigate to="/venues" replace />} />
+      <Route path="*" element={<Navigate to="/venues" replace />} />
     </Routes>
   );
 }
