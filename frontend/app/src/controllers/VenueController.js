@@ -43,6 +43,17 @@ class VenueController {
   static async delete(venueId) {
     await VenueService.delete(venueId);
   }
+
+  static async uploadImages(venueId, files) {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('images', file));
+    const res = await VenueService.uploadImages(venueId, formData);
+    return res.data.data || res.data || [];
+  }
+
+  static async deleteImage(venueId, imageUrl) {
+    await VenueService.deleteImage(venueId, imageUrl);
+  }
 }
 
 export default VenueController;

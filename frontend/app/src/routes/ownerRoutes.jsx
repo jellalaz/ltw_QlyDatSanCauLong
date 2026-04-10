@@ -29,7 +29,7 @@ const ownerRoutes = [
     <Route path="venues/new" element={<VenueForm mode="create" />} />
     <Route path="venues/:id/edit" element={<VenueForm mode="edit" />} />
     <Route path="venues/:venueId/courts" element={<CourtManage />} />
-    <Route path="venues/:venueId/courts/new" element={<CourtForm mode="create" />} />
+    <Route path="venues/:venueId/courts/new" element={<VenueForm mode="edit" />} />
     <Route path="venues/:venueId/courts/:courtId/edit" element={<CourtForm mode="edit" />} />
     <Route path="bookings" element={<BookingManage />} />
   </Route>,

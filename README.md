@@ -67,7 +67,7 @@ spring.jackson.deserialization.adjust-dates-to-context-time-zone=false
 # --- File Upload Configuration ---
 spring.servlet.multipart.enabled=true
 spring.servlet.multipart.max-file-size=10MB
-spring.servlet.multipart.max-request-size=10MB
+spring.servlet.multipart.max-request-size=50MB
 app.upload.dir=uploads
 
 ```

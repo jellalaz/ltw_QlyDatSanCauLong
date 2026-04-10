@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Service xử lý lưu trữ và quản lý file upload (ảnh chuyển khoản)
@@ -149,9 +150,10 @@ public class FileStorageService {
             throw new IllegalArgumentException("Chỉ chấp nhận file ảnh định dạng: jpg, jpeg, png");
         }
 
-        // Tạo tên file mới: venue-{id}-{timestamp}.{extension}
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String newFilename = String.format("venue-%d-%s.%s", venueId, timestamp, fileExtension);
+        // Tạo tên file mới có UUID để tránh trùng khi upload nhiều ảnh liên tiếp
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+        String uniqueSuffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        String newFilename = String.format("venue-%d-%s-%s.%s", venueId, timestamp, uniqueSuffix, fileExtension);
 
         try {
             // Copy file vào thư mục lưu trữ

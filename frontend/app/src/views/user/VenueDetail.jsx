@@ -172,7 +172,6 @@ function VenueDetail() {
                     alt={item.title}
                     style={{ width: '100%', height: '170px', objectFit: 'cover' }}
                   />
-                  <p style={{ margin: 0, padding: '10px 12px', fontSize: '13px', fontWeight: 600 }}>{item.title}</p>
                 </div>
               ))}
             </div>

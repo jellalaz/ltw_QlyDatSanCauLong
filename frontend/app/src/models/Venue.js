@@ -1,8 +1,10 @@
+import { toAssetUrl } from '../utils/helpers';
+
 /**
  * Venue Model - Đại diện cho một Cụm sân (Venue)
  */
 class Venue {
-  constructor(id, name, description, address, imageUrl, images, openTime, closeTime, status, ownerId, rating, reviewCount) {
+  constructor(id, name, description, address, imageUrl, images, openTime, closeTime, status, ownerId, rating, reviewCount, pricePerHour, phoneNumber, email, courtsCount) {
     this.id = id;
     this.name = name;
     this.description = description;
@@ -15,21 +17,34 @@ class Venue {
     this.ownerId = ownerId;
     this.rating = rating || 0;
     this.reviewCount = reviewCount || 0;
+    this.pricePerHour = pricePerHour || 0;
+    this.phoneNumber = phoneNumber || '';
+    this.email = email || '';
+    this.courtsCount = courtsCount || 0;
   }
 
   static fromAPI(data) {
-    const images = Array.isArray(data.images) ? data.images.filter(Boolean) : [];
-    const imageUrl = data.imageUrl || images[0];
+    const images = Array.isArray(data.images)
+      ? data.images.map((item) => toAssetUrl(item)).filter(Boolean)
+      : [];
+    const imageUrl = toAssetUrl(data.imageUrl) || images[0];
     const rating = data.rating ?? data.averageRating;
     const reviewCount = data.reviewCount ?? data.totalReviews;
     const openTime = data.openTime ?? data.openingTime;
     const closeTime = data.closeTime ?? data.closingTime;
+    const address = data.address || {};
+    const phoneNumber = data.phoneNumber || data.ownerPhoneNumber || '';
 
     return new Venue(
       data.id,
       data.name,
       data.description,
-      data.address,
+      {
+        id: address.id,
+        provinceOrCity: address.provinceOrCity || address.city || '',
+        district: address.district || '',
+        detailAddress: address.detailAddress || address.street || '',
+      },
       imageUrl,
       images,
       openTime,
@@ -37,7 +52,11 @@ class Venue {
       data.status,
       data.ownerId,
       rating,
-      reviewCount
+      reviewCount,
+      data.pricePerHour,
+      phoneNumber,
+      data.email,
+      data.courtsCount ?? data.courtCount ?? 0
     );
   }
 }

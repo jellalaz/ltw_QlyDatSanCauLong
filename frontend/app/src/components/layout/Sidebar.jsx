@@ -31,7 +31,7 @@ function Sidebar({ role, user }) {
 
     { section: 'Tài Khoản' },
     { icon: '👤', label: 'Thông tin cá nhân', to: '/profile' },
-    { icon: '🏠', label: 'Trang người dùng', to: '/home' },
+    { icon: '🏠', label: 'Trang chủ', to: '/home' },
   ];
 
   const adminMenu = [
@@ -53,7 +53,7 @@ function Sidebar({ role, user }) {
   return (
     <aside className="sidebar">
       {/* Logo */}
-      <div className="sidebar-logo">
+      <NavLink to="/home" className="sidebar-logo sidebar-logo-link">
         <div className="sidebar-logo-icon">🏸</div>
         <div>
           <div className="sidebar-logo-text">SânCầu</div>
@@ -61,7 +61,7 @@ function Sidebar({ role, user }) {
             {role === 'admin' ? 'Admin Panel' : 'Owner Panel'}
           </div>
         </div>
-      </div>
+      </NavLink>
 
       {/* Navigation */}
       <nav className="sidebar-nav">

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -331,17 +332,28 @@ public class VenuesController {
             // Lấy thông tin venue
             VenuesDTO venue = venuesService.getById(id);
 
-            // Xóa ảnh khỏi danh sách
-            if (venue.getImages() != null && venue.getImages().contains(imageUrl)) {
-                List<String> updatedImages = new ArrayList<>(venue.getImages());
-                updatedImages.remove(imageUrl);
+            // Xóa ảnh khỏi danh sách (so khớp linh hoạt absolute/relative URL)
+            List<String> currentImages = venue.getImages() != null ? new ArrayList<>(venue.getImages()) : new ArrayList<>();
+            String normalizedTarget = normalizeVenueImagePath(imageUrl);
+
+            int removeIndex = -1;
+            for (int i = 0; i < currentImages.size(); i++) {
+                String existing = currentImages.get(i);
+                if (Objects.equals(normalizeVenueImagePath(existing), normalizedTarget)) {
+                    removeIndex = i;
+                    break;
+                }
+            }
+
+            if (removeIndex >= 0) {
+                String removedImage = currentImages.remove(removeIndex);
 
                 VenuesRequest updateRequest = new VenuesRequest();
-                updateRequest.setImages(updatedImages);
+                updateRequest.setImages(currentImages);
                 venuesService.update(id, updateRequest);
 
                 // Xóa file vật lý
-                fileStorageService.deleteVenueImage(imageUrl);
+                fileStorageService.deleteVenueImage(removedImage);
 
                 log.info("Successfully deleted image for venue id: {}", id);
                 return ResponseEntity.ok(ApiResponse.ok(null, "Image deleted successfully"));
@@ -352,5 +364,44 @@ public class VenuesController {
             log.error("Error deleting image for venue {}: {}", id, e.getMessage(), e);
             throw e;
         }
+    }
+
+    private String normalizeVenueImagePath(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return "";
+        }
+
+        String normalized = imageUrl.trim().replace("\\", "/");
+        int queryIndex = normalized.indexOf('?');
+        if (queryIndex >= 0) {
+            normalized = normalized.substring(0, queryIndex);
+        }
+
+        int hashIndex = normalized.indexOf('#');
+        if (hashIndex >= 0) {
+            normalized = normalized.substring(0, hashIndex);
+        }
+
+        int protocolIndex = normalized.indexOf("://");
+        if (protocolIndex > 0) {
+            int pathIndex = normalized.indexOf('/', protocolIndex + 3);
+            normalized = pathIndex >= 0 ? normalized.substring(pathIndex) : "";
+        }
+
+        if (!normalized.startsWith("/")) {
+            normalized = "/" + normalized;
+        }
+
+        if (normalized.startsWith("/files/")) {
+            normalized = "/api" + normalized;
+        }
+
+        if (!normalized.startsWith("/api/files/")) {
+            int lastSlash = normalized.lastIndexOf('/');
+            String filename = lastSlash >= 0 ? normalized.substring(lastSlash + 1) : normalized;
+            normalized = "/api/files/venue-images/" + filename;
+        }
+
+        return normalized;
     }
 }

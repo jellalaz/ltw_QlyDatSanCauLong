@@ -119,6 +119,7 @@ public class CourtController {
         // Tạo Court mới từ request
         Court court = new Court();
         court.setDescription(request.getDescription());
+        court.setIsActive(request.getIsActive() == null ? Boolean.TRUE : request.getIsActive());
         // Xóa setBooked - không cần nữa
         court.setVenues(venues);
 
@@ -129,12 +130,16 @@ public class CourtController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<Court> updateCourt(@PathVariable Long id, @RequestBody Court courtDetails) {
+    public ResponseEntity<Court> updateCourt(@PathVariable Long id, @RequestBody CourtRequest request) {
         return courtRepository.findById(id).map(court -> {
-            // Xóa setBooked - không cần nữa
-            court.setDescription(courtDetails.getDescription());
-            if (courtDetails.getVenues() != null && courtDetails.getVenues().getId() != null) {
-                venuesRepository.findById(courtDetails.getVenues().getId()).ifPresent(court::setVenues);
+            if (request.getDescription() != null) {
+                court.setDescription(request.getDescription());
+            }
+            if (request.getIsActive() != null) {
+                court.setIsActive(request.getIsActive());
+            }
+            if (request.getVenueId() != null) {
+                venuesRepository.findById(request.getVenueId()).ifPresent(court::setVenues);
             }
             return ResponseEntity.ok(courtRepository.save(court));
         }).orElseGet(() -> ResponseEntity.notFound().build());

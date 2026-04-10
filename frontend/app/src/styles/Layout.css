@@ -75,6 +75,11 @@
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
+.sidebar-logo-link {
+  text-decoration: none;
+  color: inherit;
+}
+
 .sidebar-logo-icon {
   width: 40px;
   height: 40px;

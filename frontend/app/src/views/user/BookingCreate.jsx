@@ -446,7 +446,7 @@ function BookingCreate() {
                                 className={`booking-slot-btn ${isSelected ? 'selected' : ''} ${isBooked ? 'booked' : ''} ${isInactive ? 'inactive' : ''} ${isPast ? 'past' : ''}`}
                                 onClick={() => toggleSlot(court.id, slot.key, isDisabled)}
                                 disabled={isDisabled}
-                                title={isPast ? 'Khung giờ đã qua' : (isInactive ? 'Sân đang tạm ngưng hoạt động' : slot.label)}
+                                title={isPast ? 'Khung giờ đã qua' : (isInactive ? 'Sân đang bảo trì' : slot.label)}
                               />
                             </td>
                           );

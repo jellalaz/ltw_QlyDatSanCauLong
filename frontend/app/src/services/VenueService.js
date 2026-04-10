@@ -43,9 +43,16 @@ class VenueService {
   }
 
   /** [OWNER] Upload ảnh cho cụm sân */
-  static uploadImage(venueId, formData) {
-    return axios.post(`${API_BASE_URL}/venues/${venueId}/image`, formData, {
+  static uploadImages(venueId, formData) {
+    return axios.post(`${API_BASE_URL}/venues/${venueId}/upload-images`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  }
+
+  /** [OWNER] Xóa 1 ảnh khỏi cụm sân */
+  static deleteImage(venueId, imageUrl) {
+    return axios.delete(`${API_BASE_URL}/venues/${venueId}/delete-image`, {
+      params: { imageUrl },
     });
   }
 }

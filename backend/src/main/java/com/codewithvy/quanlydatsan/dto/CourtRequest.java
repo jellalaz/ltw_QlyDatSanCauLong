@@ -6,4 +6,5 @@ import lombok.Data;
 public class CourtRequest {
     private Long venueId;
     private String description;
+    private Boolean isActive;
 }
