@@ -1,6 +1,9 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
 import ComingSoon from '../../components/common/ComingSoon';
+import VenueController from '../../controllers/VenueController';
+import ReviewController from '../../controllers/ReviewController';
 import '../../styles/Layout.css';
 
 /**
@@ -13,24 +16,76 @@ import '../../styles/Layout.css';
 function VenueDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [venue, setVenue] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // TODO: Replace với API call
-  const mockVenue = {
-    id,
-    name: 'CLB Cầu Lông Phú Nhuận',
-    description: 'Cụm sân cầu lông hiện đại, thoáng mát, phục vụ 24/7.',
-    address: { street: '123 Đường Nguyễn Văn Trỗi', district: 'Phú Nhuận', city: 'TP.HCM' },
-    openTime: '06:00',
-    closeTime: '23:00',
-    rating: 4.5,
-    reviewCount: 120,
-  };
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [venueData, reviewData] = await Promise.all([
+          VenueController.getById(id),
+          ReviewController.getByVenue(id),
+        ]);
+        if (isMounted) {
+          setVenue(venueData);
+          setReviews(reviewData);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err?.message || 'Không thể tải dữ liệu sân');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  const addressText = useMemo(() => {
+    if (!venue?.address) return '';
+    const { detailAddress, district, provinceOrCity, street, city } = venue.address;
+    return [detailAddress || street, district, provinceOrCity || city].filter(Boolean).join(', ');
+  }, [venue]);
+
+  const ratingText = useMemo(() => {
+    if (!venue) return '0.0';
+    if (venue.rating && venue.reviewCount) return venue.rating.toFixed(1);
+    if (!reviews.length) return '0.0';
+    const total = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+    return (total / reviews.length).toFixed(1);
+  }, [venue, reviews]);
+
+  const reviewCount = venue?.reviewCount ?? reviews.length;
+
+  if (loading) {
+    return <div className="card"><div className="card-body">Đang tải dữ liệu...</div></div>;
+  }
+
+  if (error) {
+    return <div className="card"><div className="card-body">{error}</div></div>;
+  }
+
+  if (!venue) {
+    return <div className="card"><div className="card-body">Không tìm thấy sân.</div></div>;
+  }
 
   return (
     <div>
       <PageHeader
-        title={mockVenue.name}
-        subtitle={`📍 ${mockVenue.address.street}, ${mockVenue.address.district}`}
+        title={venue.name}
+        subtitle={addressText ? `📍 ${addressText}` : '📍 Chưa có địa chỉ'}
         actions={
           <button className="btn btn-secondary" onClick={() => navigate('/venues')}>
             ← Quay lại
@@ -44,12 +99,12 @@ function VenueDetail() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
               <p style={{ margin: '0 0 8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Mô tả</p>
-              <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>{mockVenue.description}</p>
+              <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>{venue.description || 'Chưa có mô tả'}</p>
             </div>
             <div>
               <p style={{ margin: '0 0 8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Giờ mở cửa</p>
               <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                🕐 {mockVenue.openTime} – {mockVenue.closeTime}
+                🕐 {venue.openTime || '--:--'} – {venue.closeTime || '--:--'}
               </p>
             </div>
           </div>
@@ -69,13 +124,35 @@ function VenueDetail() {
         <ComingSoon title="Danh sách sân lẻ" subtitle="Dev 3 sẽ implement CourtList + Lịch trống tại đây" icon="🏸" />
       </div>
 
-      {/* Reviews Section - TODO: Dev 5 sẽ implement */}
+      {/* Reviews Section */}
       <div className="card">
-        <div className="card-header">
-          <h3 className="card-title">Đánh giá ({mockVenue.reviewCount})</h3>
-          <span style={{ fontSize: '14px', color: '#f59e0b', fontWeight: '600' }}>⭐ {mockVenue.rating}</span>
+        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 className="card-title">Đánh giá ({reviewCount})</h3>
+          <span style={{ fontSize: '14px', color: '#f59e0b', fontWeight: '600' }}>⭐ {ratingText}</span>
         </div>
-        <ComingSoon title="Phần đánh giá" subtitle="Dev 5 sẽ implement ReviewSection tại đây" icon="⭐" />
+        <div className="card-body">
+          {reviews.length === 0 ? (
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>Chưa có đánh giá nào.</p>
+          ) : (
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {reviews.map((review) => (
+                <div key={review.id} style={{ padding: '12px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <strong style={{ fontSize: '14px' }}>{review.authorName || 'Người dùng'}</strong>
+                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                      {review.createdAt ? new Date(review.createdAt).toLocaleDateString('vi-VN') : ''}
+                    </span>
+                  </div>
+                  <div style={{ marginTop: '6px', color: '#f59e0b', fontWeight: '600', fontSize: '13px' }}>
+                    {'⭐'.repeat(review.rating || 0)}
+                    <span style={{ marginLeft: '6px', color: 'var(--text-secondary)' }}>{review.rating || 0}/5</span>
+                  </div>
+                  <p style={{ margin: '8px 0 0', fontSize: '14px', color: 'var(--text-primary)' }}>{review.comment}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

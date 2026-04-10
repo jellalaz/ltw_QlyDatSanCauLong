@@ -11,14 +11,14 @@ class ReviewController {
     return Array.isArray(data) ? data.map(Review.fromAPI) : [];
   }
 
-  static async create(reviewData) {
+  static async create(bookingId, reviewData) {
     if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
       throw new Error('Vui lòng chọn số sao từ 1 đến 5');
     }
     if (!reviewData.comment?.trim()) {
       throw new Error('Vui lòng nhập nội dung đánh giá');
     }
-    const res = await ReviewService.create(reviewData);
+    const res = await ReviewService.create(bookingId, reviewData);
     return Review.fromAPI(res.data.data || res.data);
   }
 

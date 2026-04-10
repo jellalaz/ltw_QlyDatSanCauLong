@@ -13,14 +13,17 @@ class Review {
   }
 
   static fromAPI(data) {
+    const authorName = data.userFullname ?? data.authorName ?? data.userName;
+    const createdAt = data.createdAt ?? data.updatedAt;
+
     return new Review(
       data.id,
       data.userId,
       data.venueId,
       data.rating,
       data.comment,
-      data.authorName,
-      data.createdAt
+      authorName,
+      createdAt
     );
   }
 }

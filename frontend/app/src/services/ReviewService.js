@@ -9,12 +9,12 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 class ReviewService {
   /** Lấy danh sách review của 1 cụm sân */
   static getByVenue(venueId) {
-    return axios.get(`${API_BASE_URL}/reviews`, { params: { venueId } });
+    return axios.get(`${API_BASE_URL}/venues/${venueId}/reviews`);
   }
 
   /** [USER] Viết review */
-  static create(reviewData) {
-    return axios.post(`${API_BASE_URL}/reviews`, reviewData);
+  static create(bookingId, reviewData) {
+    return axios.post(`${API_BASE_URL}/bookings/${bookingId}/review`, reviewData);
   }
 
   /** [USER] Sửa review của mình */
