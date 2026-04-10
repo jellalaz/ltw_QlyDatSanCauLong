@@ -1,4 +1,6 @@
+import { useEffect, useMemo, useState } from 'react';
 import PageHeader from '../../components/common/PageHeader';
+import NotificationService from '../../services/NotificationService';
 import '../../styles/Layout.css';
 
 /**
@@ -6,14 +8,61 @@ import '../../styles/Layout.css';
  * TODO: Gọi NotificationService.getAll() và markAsRead()
  */
 function Notifications() {
-  // TODO: Replace với API call
-  const mockNotifications = [
-    { id: 1, title: 'Đơn đặt sân được duyệt', message: 'Đơn đặt sân tại CLB Phú Nhuận ngày 20/11 đã được chủ sân phê duyệt.', isRead: false, createdAt: '2024-11-19 09:00' },
-    { id: 2, title: 'Nhắc lịch chơi sân', message: 'Bạn có lịch đặt sân vào lúc 08:00 ngày mai. Đừng quên nhé!', isRead: false, createdAt: '2024-11-19 07:00' },
-    { id: 3, title: 'Đánh giá của bạn được ghi nhận', message: 'Cảm ơn bạn đã để lại đánh giá cho Sân Tân Bình.', isRead: true, createdAt: '2024-11-10 15:30' },
-  ];
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [markingAll, setMarkingAll] = useState(false);
 
-  const unreadCount = mockNotifications.filter(n => !n.isRead).length;
+  const unreadCount = useMemo(
+    () => notifications.filter((item) => !item.isRead).length,
+    [notifications],
+  );
+
+  const loadNotifications = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const res = await NotificationService.getAll();
+      const data = res?.data?.data || res?.data || [];
+      setNotifications(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || 'Không thể tải thông báo.');
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadNotifications();
+  }, []);
+
+  const handleMarkOne = async (id, isRead) => {
+    if (isRead) return;
+    try {
+      await NotificationService.markAsRead(id);
+      setNotifications((prev) => prev.map((item) => (item.id === id ? { ...item, isRead: true } : item)));
+    } catch {
+      // Ignore single-mark failures to keep UX smooth.
+    }
+  };
+
+  const handleMarkAll = async () => {
+    try {
+      setMarkingAll(true);
+      await NotificationService.markAllAsRead();
+      setNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })));
+    } finally {
+      setMarkingAll(false);
+    }
+  };
+
+  const formatTime = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString('vi-VN');
+  };
 
   return (
     <div>
@@ -22,15 +71,21 @@ function Notifications() {
         subtitle={`Bạn có ${unreadCount} thông báo chưa đọc`}
         actions={
           unreadCount > 0 && (
-            <button className="btn btn-secondary btn-sm">
-              ✓ Đánh dấu tất cả đã đọc {/* TODO: NotificationService.markAllAsRead() */}
+            <button className="btn btn-secondary btn-sm" onClick={handleMarkAll} disabled={markingAll}>
+              {markingAll ? 'Đang cập nhật...' : '✓ Đánh dấu tất cả đã đọc'}
             </button>
           )
         }
       />
 
+      {error && <p style={{ margin: '0 0 12px', color: '#dc2626' }}>{error}</p>}
+
       <div className="card">
-        {mockNotifications.map((n) => (
+        {loading && (
+          <div style={{ padding: '16px 20px', color: 'var(--text-secondary)' }}>Đang tải thông báo...</div>
+        )}
+
+        {!loading && notifications.map((n) => (
           <div
             key={n.id}
             style={{
@@ -40,9 +95,10 @@ function Notifications() {
               display: 'flex',
               gap: '14px',
               alignItems: 'flex-start',
-              cursor: 'pointer',
+              cursor: n.isRead ? 'default' : 'pointer',
               transition: 'background 0.15s',
             }}
+            onClick={() => handleMarkOne(n.id, n.isRead)}
           >
             <div style={{ fontSize: '24px', flexShrink: 0 }}>
               {n.isRead ? '🔔' : '🔴'}
@@ -52,14 +108,14 @@ function Notifications() {
                 <h4 style={{ margin: 0, fontSize: '14px', fontWeight: n.isRead ? '500' : '700', color: 'var(--text-primary)' }}>
                   {n.title}
                 </h4>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{n.createdAt}</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatTime(n.createdAt)}</span>
               </div>
               <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>{n.message}</p>
             </div>
           </div>
         ))}
 
-        {mockNotifications.length === 0 && (
+        {!loading && notifications.length === 0 && (
           <div className="empty-state">
             <div className="empty-icon">🔔</div>
             <p className="empty-title">Chưa có thông báo nào</p>

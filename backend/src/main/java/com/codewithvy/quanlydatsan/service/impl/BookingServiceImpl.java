@@ -492,6 +492,7 @@ public class BookingServiceImpl implements BookingService {
                 .id(booking.getId())
                 .userId(booking.getUser().getId())
                 .userName(booking.getUser().getFullname())
+                .userPhone(booking.getUser().getPhone())
                 .courtId(firstItem.getCourt().getId())
                 .courtName(firstItem.getCourt().getDescription())  // ✅ Sửa: dùng description
                 .venuesName(firstItem.getCourt().getVenues().getName())

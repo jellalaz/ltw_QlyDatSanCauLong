@@ -964,3 +964,77 @@
   border-color: #d1d5db;
 }
 
+/* Booking list table layout */
+.bookings-table {
+  table-layout: fixed;
+}
+
+.bookings-table th,
+.bookings-table td {
+  text-align: center;
+}
+
+.bookings-venue-cell,
+.bookings-court-cell {
+  text-align: left;
+  font-weight: 600;
+}
+
+.bookings-price-cell {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.bookings-time-col,
+.bookings-time-cell {
+  width: 180px;
+  text-align: center;
+}
+
+.bookings-status-cell {
+  text-align: center;
+}
+
+.bookings-action-col,
+.bookings-action-cell {
+  width: 260px;
+}
+
+.bookings-action-cell {
+  text-align: center;
+}
+
+.bookings-action-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+}
+
+.bookings-action-group-centered {
+  justify-content: center;
+}
+
+/* Override global .btn flex styles from other pages so action buttons keep natural width */
+.bookings-action-group .btn {
+  flex: 0 0 auto;
+}
+
+.bookings-action-group .btn-secondary {
+  justify-content: center;
+  text-align: center;
+}
+
+.bookings-review-btn {
+  min-width: 170px;
+  justify-content: center;
+}
+
+.bookings-action-group-multi .bookings-review-btn {
+  flex-basis: 100%;
+  max-width: 170px;
+  margin: 0 auto;
+}
+

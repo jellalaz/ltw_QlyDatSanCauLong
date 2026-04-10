@@ -13,6 +13,7 @@ public class BookingResponse {
     private Long id;
     private Long userId;
     private String userName;
+    private String userPhone;
     private Long courtId;
     private String courtName;
     private String venuesName;

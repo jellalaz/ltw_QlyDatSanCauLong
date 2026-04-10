@@ -21,8 +21,23 @@ class BookingController {
     await BookingService.cancel(bookingId);
   }
 
-  static async pay(bookingId) {
-    await BookingService.pay(bookingId);
+  static async pay(bookingId, paymentProofUrl) {
+    await BookingService.pay(bookingId, paymentProofUrl);
+  }
+
+  static async confirmPayment(bookingId, paymentProofUrl) {
+    const res = await BookingService.pay(bookingId, paymentProofUrl);
+    return Booking.fromAPI(res.data.data || res.data);
+  }
+
+  static async uploadPaymentProof(bookingId, file) {
+    const res = await BookingService.uploadPaymentProof(bookingId, file);
+    return Booking.fromAPI(res.data.data || res.data);
+  }
+
+  static async getById(bookingId) {
+    const res = await BookingService.getById(bookingId);
+    return Booking.fromAPI(res.data.data || res.data);
   }
 
   // Owner actions

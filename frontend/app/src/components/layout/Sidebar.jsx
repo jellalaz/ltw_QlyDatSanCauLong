@@ -31,7 +31,7 @@ function Sidebar({ role, user }) {
 
     { section: 'Tài Khoản' },
     { icon: '👤', label: 'Thông tin cá nhân', to: '/profile' },
-    { icon: '🏠', label: 'Trang chủ', to: '/home' },
+    { icon: '🏠', label: 'Trang tổng quan', to: '/home' },
   ];
 
   const adminMenu = [
@@ -44,7 +44,7 @@ function Sidebar({ role, user }) {
 
     { section: 'Tài Khoản' },
     { icon: '👤', label: 'Thông tin cá nhân', to: '/profile' },
-    { icon: '🏠', label: 'Trang chủ', to: '/home' },
+    { icon: '🏠', label: 'Trang tổng quan', to: '/home' },
   ];
 
   const menu = role === 'admin' ? adminMenu : ownerMenu;

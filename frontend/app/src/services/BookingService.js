@@ -27,6 +27,15 @@ class BookingService {
     return axios.put(`${API_BASE_URL}/bookings/${bookingId}/confirm-payment`, { paymentProofUrl });
   }
 
+  /** [USER] Upload ảnh biên lai thanh toán */
+  static uploadPaymentProof(bookingId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.post(`${API_BASE_URL}/bookings/${bookingId}/upload-payment-proof`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  }
+
   /** [OWNER] Lấy danh sách đơn chờ duyệt */
   static getPendingBookingsForOwner() {
     return axios.get(`${API_BASE_URL}/bookings/pending`);

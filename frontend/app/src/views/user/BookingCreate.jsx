@@ -318,37 +318,30 @@ function BookingCreate() {
       setSubmitting(true);
       setError('');
 
-      const createdBookings = [];
-
-      for (const range of bookingRanges) {
+      const bookingItems = bookingRanges.map((range) => {
         const startTime = toDateTime(selectedDate, range.startSlot.start);
         const endTime = toDateTime(selectedDate, range.endSlot.end);
-
-        if (new Date(startTime).getTime() < Date.now()) {
-          setError('Không thể đặt sân ở khung giờ đã qua. Vui lòng bỏ chọn ô quá khứ rồi thử lại.');
-          setSubmitting(false);
-          return;
-        }
-
-        const booking = await BookingController.create({
-          venueId: Number(venueId),
+        return {
           courtId: Number(range.courtId),
           startTime,
           endTime,
-        });
+        };
+      });
 
-        createdBookings.push(booking);
+      const hasPastItem = bookingItems.some((item) => new Date(item.startTime).getTime() < Date.now());
+      if (hasPastItem) {
+        setError('Không thể đặt sân ở khung giờ đã qua. Vui lòng bỏ chọn ô quá khứ rồi thử lại.');
+        setSubmitting(false);
+        return;
       }
 
-      if (createdBookings.length === 1 && createdBookings[0]?.id) {
-        navigate(`/bookings/${createdBookings[0].id}/payment`, {
-          state: {
-            booking: createdBookings[0],
-            venueName: venue?.name,
-            selectedDate,
-            totalPrice,
-          },
-        });
+      const createdBooking = await BookingController.create({
+        venueId: Number(venueId),
+        bookingItems,
+      });
+
+      if (createdBooking?.id) {
+        navigate(`/bookings/${createdBooking.id}/payment`);
       } else {
         navigate('/bookings');
       }
