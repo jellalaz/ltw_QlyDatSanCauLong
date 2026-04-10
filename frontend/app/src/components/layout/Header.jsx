@@ -7,7 +7,7 @@ import '../../../src/styles/Layout.css';
  * Header Component - Dùng cho UserLayout (Header ngang)
  * Hiển thị: Logo, Navigation, Notification, Avatar Dropdown
  */
-function Header({ user }) {
+function Header({ user, onLogout }) {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -26,7 +26,10 @@ function Header({ user }) {
   const handleLogout = () => {
     AuthController.logout();
     localStorage.removeItem('currentUser');
-    navigate('/login');
+    if (onLogout) {
+      onLogout();
+    }
+    navigate('/home');
   };
 
   const getInitials = (name) => {
@@ -36,6 +39,7 @@ function Header({ user }) {
 
   const isOwner = user?.roles?.includes('ROLE_OWNER');
   const isAdmin = user?.roles?.includes('ROLE_ADMIN');
+  const isAuthenticated = Boolean(user) || AuthController.isAuthenticated();
 
   return (
     <header className="header">
@@ -92,74 +96,83 @@ function Header({ user }) {
 
         {/* Actions */}
         <div className="header-actions">
-          {/* Notification Bell */}
-          <NavLink to="/notifications">
-            <button className="header-icon-btn" title="Thông báo">
-              🔔
-              {/* Hiện badge đỏ nếu có thông báo chưa đọc */}
-              <span className="notification-badge" />
-            </button>
-          </NavLink>
+          {isAuthenticated ? (
+            <>
+              {/* Notification Bell */}
+              <NavLink to="/notifications">
+                <button className="header-icon-btn" title="Thông báo">
+                  🔔
+                  {/* Hiện badge đỏ nếu có thông báo chưa đọc */}
+                  <span className="notification-badge" />
+                </button>
+              </NavLink>
 
-          {/* Avatar Dropdown */}
-          <div className="dropdown-wrapper" ref={dropdownRef}>
-            <button
-              className="header-user-btn"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              <div className="header-avatar">
-                {getInitials(user?.fullname)}
-              </div>
-              <span className="header-username">
-                {user?.fullname?.split(' ').pop() || 'Tài khoản'}
-              </span>
-              <span style={{ fontSize: '12px', color: '#94a3b8' }}>▾</span>
-            </button>
+              {/* Avatar Dropdown */}
+              <div className="dropdown-wrapper" ref={dropdownRef}>
+                <button
+                  className="header-user-btn"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  <div className="header-avatar">
+                    {getInitials(user?.fullname)}
+                  </div>
+                  <span className="header-username">
+                    {user?.fullname?.split(' ').pop() || 'Tài khoản'}
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>▾</span>
+                </button>
 
-            {dropdownOpen && (
-              <div className="dropdown-menu">
-                <NavLink
-                  to="/profile"
-                  className="dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  👤 Thông tin cá nhân
-                </NavLink>
-                <NavLink
-                  to="/notifications"
-                  className="dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  🔔 Thông báo
-                </NavLink>
-                {isOwner && (
-                  <NavLink
-                    to="/owner"
-                    className="dropdown-item"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    🏪 Trang chủ sân
-                  </NavLink>
+                {dropdownOpen && (
+                  <div className="dropdown-menu">
+                    <NavLink
+                      to="/profile"
+                      className="dropdown-item"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      👤 Thông tin cá nhân
+                    </NavLink>
+                    <NavLink
+                      to="/notifications"
+                      className="dropdown-item"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      🔔 Thông báo
+                    </NavLink>
+                    {isOwner && (
+                      <NavLink
+                        to="/owner"
+                        className="dropdown-item"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        🏪 Trang chủ sân
+                      </NavLink>
+                    )}
+                    {isAdmin && (
+                      <NavLink
+                        to="/admin"
+                        className="dropdown-item"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        ⚙️ Trang quản trị
+                      </NavLink>
+                    )}
+                    <div className="dropdown-divider" />
+                    <div
+                      className="dropdown-item danger"
+                      onClick={() => { setDropdownOpen(false); handleLogout(); }}
+                    >
+                      🚪 Đăng xuất
+                    </div>
+                  </div>
                 )}
-                {isAdmin && (
-                  <NavLink
-                    to="/admin"
-                    className="dropdown-item"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    ⚙️ Trang quản trị
-                  </NavLink>
-                )}
-                <div className="dropdown-divider" />
-                <div
-                  className="dropdown-item danger"
-                  onClick={() => { setDropdownOpen(false); handleLogout(); }}
-                >
-                  🚪 Đăng xuất
-                </div>
               </div>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className="header-auth-btn secondary">Đăng nhập</NavLink>
+              <NavLink to="/signup" className="header-auth-btn primary">Đăng ký</NavLink>
+            </>
+          )}
         </div>
       </div>
     </header>

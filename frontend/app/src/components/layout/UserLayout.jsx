@@ -32,7 +32,7 @@ function UserLayout() {
 
   return (
     <div className="user-layout">
-      <Header user={user} />
+      <Header user={user} onLogout={() => setUser(null)} />
       <main className="user-content">
         {/* Outlet: nội dung từng trang con render ở đây */}
         <Outlet context={{ user, setUser }} />
