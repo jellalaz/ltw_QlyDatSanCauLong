@@ -201,8 +201,8 @@ public class VenuesController {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("venueId", venueId);
         responseData.put("venueName", venue.getName());
-        responseData.put("openingTime", venue.getOpeningTime()); // ← Giờ mở cửa (VD: "06:00:00")
-        responseData.put("closingTime", venue.getClosingTime()); // ← Giờ đóng cửa (VD: "23:00:00")
+        responseData.put("openingTime", venue.getOpeningTime() != null ? venue.getOpeningTime().toString() : null);
+        responseData.put("closingTime", venue.getClosingTime() != null ? venue.getClosingTime().toString() : null);
         responseData.put("pricePerHour", venue.getPricePerHour()); // ← Giá theo giờ
         responseData.put("timeRange", Map.of(
             "startTime", startTime,

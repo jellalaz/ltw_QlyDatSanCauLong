@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
-import ComingSoon from '../../components/common/ComingSoon';
 import VenueController from '../../controllers/VenueController';
 import ReviewController from '../../controllers/ReviewController';
+import CourtController from '../../controllers/CourtController';
 import '../../styles/Layout.css';
 
 /**
@@ -18,8 +18,11 @@ function VenueDetail() {
   const navigate = useNavigate();
   const [venue, setVenue] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [courts, setCourts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [courtLoading, setCourtLoading] = useState(true);
   const [error, setError] = useState('');
+  const [courtError, setCourtError] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -27,21 +30,27 @@ function VenueDetail() {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [venueData, reviewData] = await Promise.all([
+        setCourtLoading(true);
+        setCourtError('');
+        const [venueData, reviewData, courtData] = await Promise.all([
           VenueController.getById(id),
           ReviewController.getByVenue(id),
+          CourtController.getByVenue(id),
         ]);
         if (isMounted) {
           setVenue(venueData);
           setReviews(reviewData);
+          setCourts(courtData);
         }
       } catch (err) {
         if (isMounted) {
           setError(err?.message || 'Không thể tải dữ liệu sân');
+          setCourtError('Không thể tải danh sách sân lẻ');
         }
       } finally {
         if (isMounted) {
           setLoading(false);
+          setCourtLoading(false);
         }
       }
     };
@@ -68,6 +77,30 @@ function VenueDetail() {
   }, [venue, reviews]);
 
   const reviewCount = venue?.reviewCount ?? reviews.length;
+
+  const venueImages = useMemo(() => {
+    const images = Array.isArray(venue?.images) ? venue.images.filter(Boolean) : [];
+    if (images.length) return images;
+    return venue?.imageUrl ? [venue.imageUrl] : [];
+  }, [venue]);
+
+  const galleryItems = useMemo(() => {
+    const courtImages = courts
+      .filter((court) => court.imageUrl)
+      .map((court) => ({
+        id: `court-${court.id}`,
+        url: court.imageUrl,
+        title: court.name || `Sân ${court.id}`,
+      }));
+
+    if (courtImages.length > 0) return courtImages;
+
+    return venueImages.map((url, index) => ({
+      id: `venue-${index}`,
+      url,
+      title: venue?.name || `Ảnh sân ${index + 1}`,
+    }));
+  }, [courts, venue?.name, venueImages]);
 
   if (loading) {
     return <div className="card"><div className="card-body">Đang tải dữ liệu...</div></div>;
@@ -116,12 +149,35 @@ function VenueDetail() {
         </div>
       </div>
 
-      {/* Courts Section - TODO: Dev 3 sẽ implement */}
+      {/* Venue/Court Images Section */}
       <div className="card" style={{ marginBottom: '24px' }}>
         <div className="card-header">
-          <h3 className="card-title">Danh sách sân</h3>
+          <h3 className="card-title">Hình ảnh sân</h3>
         </div>
-        <ComingSoon title="Danh sách sân lẻ" subtitle="Dev 3 sẽ implement CourtList + Lịch trống tại đây" icon="🏸" />
+        <div className="card-body">
+          {courtLoading ? (
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>Đang tải hình ảnh sân...</p>
+          ) : courtError ? (
+            <p style={{ margin: 0, fontSize: '14px', color: '#dc2626' }}>{courtError}</p>
+          ) : galleryItems.length === 0 ? (
+            <div style={{ height: '220px', borderRadius: '12px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '48px' }}>
+              🏸
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '14px' }}>
+              {galleryItems.map((item) => (
+                <div key={item.id} style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', background: '#fff' }}>
+                  <img
+                    src={item.url}
+                    alt={item.title}
+                    style={{ width: '100%', height: '170px', objectFit: 'cover' }}
+                  />
+                  <p style={{ margin: 0, padding: '10px 12px', fontSize: '13px', fontWeight: 600 }}>{item.title}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Reviews Section */}

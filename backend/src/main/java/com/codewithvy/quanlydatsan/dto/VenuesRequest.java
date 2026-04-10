@@ -46,7 +46,4 @@ public class VenuesRequest {
     @Schema(description = "Danh sách URL ảnh của venue", example = "[\"https://example.com/image1.jpg\", \"https://example.com/image2.jpg\"]")
     private java.util.List<String> images;
 
-    // Số lượng sân (tự động tạo courts khi khởi tạo venue)
-    @Schema(description = "Số lượng sân muốn tạo (sẽ tự động tạo courts)", example = "5")
-    private Integer numberOfCourt;
 }

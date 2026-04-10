@@ -2,12 +2,13 @@
  * Venue Model - Đại diện cho một Cụm sân (Venue)
  */
 class Venue {
-  constructor(id, name, description, address, imageUrl, openTime, closeTime, status, ownerId, rating, reviewCount) {
+  constructor(id, name, description, address, imageUrl, images, openTime, closeTime, status, ownerId, rating, reviewCount) {
     this.id = id;
     this.name = name;
     this.description = description;
     this.address = address;      // Object Address { street, district, city }
     this.imageUrl = imageUrl;
+    this.images = images || [];
     this.openTime = openTime;    // VD: "07:00"
     this.closeTime = closeTime;  // VD: "22:00"
     this.status = status;        // ACTIVE | INACTIVE | PENDING
@@ -17,7 +18,8 @@ class Venue {
   }
 
   static fromAPI(data) {
-    const imageUrl = data.imageUrl || (Array.isArray(data.images) ? data.images[0] : undefined);
+    const images = Array.isArray(data.images) ? data.images.filter(Boolean) : [];
+    const imageUrl = data.imageUrl || images[0];
     const rating = data.rating ?? data.averageRating;
     const reviewCount = data.reviewCount ?? data.totalReviews;
     const openTime = data.openTime ?? data.openingTime;
@@ -29,6 +31,7 @@ class Venue {
       data.description,
       data.address,
       imageUrl,
+      images,
       openTime,
       closeTime,
       data.status,

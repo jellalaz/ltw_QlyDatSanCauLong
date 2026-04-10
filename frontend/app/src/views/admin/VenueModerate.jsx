@@ -102,7 +102,8 @@ function VenueModerate() {
               </thead>
               <tbody>
                 {filteredVenues.map((v) => {
-                  const isActive = (v.numberOfCourt || 0) > 0;
+                  const courtsCount = v.courtsCount || 0;
+                  const isActive = courtsCount > 0;
                   const status = isActive ? statusMap.ACTIVE : statusMap.INACTIVE;
                   const address = [v?.address?.detailAddress, v?.address?.district, v?.address?.provinceOrCity]
                     .filter(Boolean)
@@ -111,7 +112,7 @@ function VenueModerate() {
                   return (
                     <tr key={v.id}>
                       <td style={{ fontWeight: '600' }}>{v.name}</td>
-                      <td>{v.numberOfCourt || 0}</td>
+                      <td>{courtsCount}</td>
                       <td>📍 {address || '-'}</td>
                       <td>{(v.pricePerHour || 0).toLocaleString('vi-VN')}đ</td>
                       <td><span className={`badge ${status.cls}`}>{status.label}</span></td>

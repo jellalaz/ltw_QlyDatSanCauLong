@@ -124,10 +124,6 @@ public class CourtController {
 
         Court savedCourt = courtRepository.save(court);
 
-        // Tự động tăng numberOfCourt
-        venues.setNumberOfCourt(venues.getNumberOfCourt() + 1);
-        venuesRepository.save(venues);
-
         return ResponseEntity.ok(savedCourt);
     }
 
@@ -152,17 +148,9 @@ public class CourtController {
             return ResponseEntity.notFound().build();
         }
 
-        Court court = courtOpt.get();
-        Venues venues = court.getVenues();
-
         // Xóa court
         courtRepository.deleteById(id);
 
-        // Tự động giảm numberOfCourt
-        if (venues != null && venues.getNumberOfCourt() > 0) {
-            venues.setNumberOfCourt(venues.getNumberOfCourt() - 1);
-            venuesRepository.save(venues);
-        }
 
         return ResponseEntity.noContent().build();
     }

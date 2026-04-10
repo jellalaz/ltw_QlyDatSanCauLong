@@ -15,4 +15,6 @@ public interface CourtRepository extends JpaRepository<Court, Long> {
      * Tìm tất cả courts thuộc một venue
      */
     List<Court> findByVenuesId(Long venueId);
+
+    long countByVenuesId(Long venueId);
 }

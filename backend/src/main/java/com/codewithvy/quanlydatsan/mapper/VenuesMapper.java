@@ -4,6 +4,7 @@ import com.codewithvy.quanlydatsan.dto.AddressDTO;
 import com.codewithvy.quanlydatsan.dto.VenuesDTO;
 import com.codewithvy.quanlydatsan.model.Address;
 import com.codewithvy.quanlydatsan.model.Venues;
+import com.codewithvy.quanlydatsan.repository.CourtRepository;
 import com.codewithvy.quanlydatsan.repository.ReviewRepository;
 import org.springframework.stereotype.Component;
 
@@ -11,10 +12,12 @@ import org.springframework.stereotype.Component;
 public class VenuesMapper {
 
     private static ReviewRepository reviewRepository;
+    private static CourtRepository courtRepository;
 
     // Constructor injection
-    public VenuesMapper(ReviewRepository reviewRepository) {
+    public VenuesMapper(ReviewRepository reviewRepository, CourtRepository courtRepository) {
         VenuesMapper.reviewRepository = reviewRepository;
+        VenuesMapper.courtRepository = courtRepository;
     }
 
     public static VenuesDTO toDto(Venues v){
@@ -29,8 +32,9 @@ public class VenuesMapper {
                     .detailAddress(address.getDetailAddress())
                     .build();
         }
-        // Dùng numberOfCourt thay vì getCourts().size() để tránh lazy loading
-        Integer courtsCount = v.getNumberOfCourt();
+        Integer courtsCount = courtRepository != null
+                ? (int) courtRepository.countByVenuesId(v.getId())
+                : 0;
 
         // Tính toán động averageRating và totalReviews từ bảng review
         Double averageRating = 0.0;
@@ -45,7 +49,6 @@ public class VenuesMapper {
                 .id(v.getId())
                 .name(v.getName())
                 .description(v.getDescription()) // Map trường description
-                .numberOfCourt(v.getNumberOfCourt())
                 .address(addressDTO)
                 .courtsCount(courtsCount)
                 .pricePerHour(v.getPricePerHour())

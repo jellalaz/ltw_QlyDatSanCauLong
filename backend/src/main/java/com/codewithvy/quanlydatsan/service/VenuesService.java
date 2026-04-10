@@ -4,13 +4,11 @@ import com.codewithvy.quanlydatsan.dto.AddressDTO;
 import com.codewithvy.quanlydatsan.dto.VenuesDTO;
 import com.codewithvy.quanlydatsan.dto.VenuesRequest;
 import com.codewithvy.quanlydatsan.model.Address;
-import com.codewithvy.quanlydatsan.model.Court;
 import com.codewithvy.quanlydatsan.model.User;
 import com.codewithvy.quanlydatsan.model.Venues;
 import com.codewithvy.quanlydatsan.exception.ResourceNotFoundException;
 import com.codewithvy.quanlydatsan.mapper.VenuesMapper;
 import com.codewithvy.quanlydatsan.repository.AddressRepository;
-import com.codewithvy.quanlydatsan.repository.CourtRepository;
 import com.codewithvy.quanlydatsan.repository.UserRepository;
 import com.codewithvy.quanlydatsan.repository.VenuesRepository;
 import org.slf4j.Logger;
@@ -30,14 +28,12 @@ public class VenuesService {
     private final VenuesRepository venuesRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
-    private final CourtRepository courtRepository;
 
     public VenuesService(VenuesRepository venuesRepository, AddressRepository addressRepository,
-                         UserRepository userRepository, CourtRepository courtRepository) {
+                         UserRepository userRepository) {
         this.venuesRepository = venuesRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
-        this.courtRepository = courtRepository;
     }
 
     public List<VenuesDTO> getAll() {
@@ -101,7 +97,6 @@ public class VenuesService {
         v.setEmail(request.getEmail());
         v.setAddress(address);
         v.setOwner(currentUser); // SET OWNER - BẮT BUỘC
-        v.setNumberOfCourt(0); // Khởi tạo = 0, sẽ tự động tăng khi thêm court
         v.setPricePerHour(request.getPricePerHour()); // SET GIÁ
         v.setOpeningTime(request.getOpeningTime()); // SET THỜI GIAN MỞ CỬA
         v.setClosingTime(request.getClosingTime()); // SET THỜI GIAN ĐÓNG CỬA
@@ -115,14 +110,6 @@ public class VenuesService {
         log.info("Saving venue: {} with price: {}", v.getName(), v.getPricePerHour());
         Venues saved = venuesRepository.save(v);
         log.info("Venue saved successfully with id: {}", saved.getId());
-
-        // TỰ ĐỘNG TẠO COURTS nếu có numberOfCourt trong request
-        if (request.getNumberOfCourt() != null && request.getNumberOfCourt() > 0) {
-            log.info("Auto-creating {} courts for venue id: {}", request.getNumberOfCourt(), saved.getId());
-            createCourtsForVenue(saved, request.getNumberOfCourt());
-            saved.setNumberOfCourt(request.getNumberOfCourt());
-            venuesRepository.save(saved);
-        }
 
         return VenuesMapper.toDto(saved);
     }
@@ -184,45 +171,6 @@ public class VenuesService {
             }
         }
 
-        // Cập nhật số lượng sân nếu có
-        if (request.getNumberOfCourt() != null && request.getNumberOfCourt() > 0) {
-            int currentNumberOfCourts = existing.getNumberOfCourt();
-            int newNumberOfCourts = request.getNumberOfCourt();
-
-            log.info("Updating numberOfCourt for venue id: {} from {} to {}", id, currentNumberOfCourts, newNumberOfCourts);
-
-            if (newNumberOfCourts > currentNumberOfCourts) {
-                // Tăng số sân - tạo thêm courts mới
-                int courtsToAdd = newNumberOfCourts - currentNumberOfCourts;
-                log.info("Adding {} new courts to venue id: {}", courtsToAdd, id);
-
-                for (int i = currentNumberOfCourts + 1; i <= newNumberOfCourts; i++) {
-                    Court court = new Court();
-                    court.setDescription("Sân số " + i);
-                    court.setVenues(existing);
-                    courtRepository.save(court);
-                    log.info("Created court {} for venue id: {}", i, id);
-                }
-            } else if (newNumberOfCourts < currentNumberOfCourts) {
-                // Giảm số sân - xóa các courts thừa (xóa từ cuối)
-                int courtsToRemove = currentNumberOfCourts - newNumberOfCourts;
-                log.info("Removing {} courts from venue id: {}", courtsToRemove, id);
-
-                List<Court> courts = courtRepository.findAll().stream()
-                        .filter(court -> court.getVenues().getId().equals(id))
-                        .sorted((c1, c2) -> c2.getId().compareTo(c1.getId())) // Sort descending by ID
-                        .limit(courtsToRemove)
-                        .collect(Collectors.toList());
-
-                for (Court court : courts) {
-                    log.info("Deleting court id: {} from venue id: {}", court.getId(), id);
-                    courtRepository.delete(court);
-                }
-            }
-
-            existing.setNumberOfCourt(newNumberOfCourts);
-        }
-
         return VenuesMapper.toDto(existing); // managed entity auto flushed
     }
 
@@ -256,18 +204,6 @@ public class VenuesService {
         return saved;
     }
 
-    /**
-     * Tự động tạo courts cho venue khi khởi tạo
-     */
-    private void createCourtsForVenue(Venues venue, int numberOfCourts) {
-        for (int i = 1; i <= numberOfCourts; i++) {
-            Court court = new Court();
-            court.setDescription("Sân số " + i);
-            court.setVenues(venue);
-            courtRepository.save(court);
-            log.info("Created court {} for venue id: {}", i, venue.getId());
-        }
-    }
 
     /**
      * Lấy thông tin user hiện tại đang đăng nhập

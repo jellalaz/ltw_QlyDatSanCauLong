@@ -23,8 +23,6 @@ public class Venues {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // id venues
 
-    @Column(nullable = false)
-    private int numberOfCourt; // số sân đăng ký/quản lý
 
     @Column(nullable = false)
     private String name; // tên địa điểm

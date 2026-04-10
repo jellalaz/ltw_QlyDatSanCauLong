@@ -9,7 +9,14 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 class CourtService {
   /** Lấy danh sách sân lẻ của 1 cụm sân */
   static getByVenue(venueId) {
-    return axios.get(`${API_BASE_URL}/courts`, { params: { venueId } });
+    return axios.get(`${API_BASE_URL}/venues/${venueId}/courts`);
+  }
+
+  /** Lấy danh sách sân + booked slots theo khoảng thời gian trong venue */
+  static getVenueAvailability(venueId, startTime, endTime) {
+    return axios.get(`${API_BASE_URL}/venues/${venueId}/courts/availability`, {
+      params: { startTime, endTime },
+    });
   }
 
   /** Xem chi tiết 1 sân lẻ */
@@ -18,9 +25,9 @@ class CourtService {
   }
 
   /** Kiểm tra lịch trống của sân theo ngày */
-  static getAvailability(courtId, date) {
+  static getAvailability(courtId, startTime, endTime) {
     return axios.get(`${API_BASE_URL}/courts/${courtId}/availability`, {
-      params: { date },
+      params: { startTime, endTime },
     });
   }
 

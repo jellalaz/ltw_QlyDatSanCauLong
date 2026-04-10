@@ -16,9 +16,13 @@ class CourtController {
     return Court.fromAPI(res.data.data || res.data);
   }
 
-  static async getAvailability(courtId, date) {
-    // TODO: Trả về mảng khung giờ trống
-    const res = await CourtService.getAvailability(courtId, date);
+  static async getAvailability(courtId, startTime, endTime) {
+    const res = await CourtService.getAvailability(courtId, startTime, endTime);
+    return res.data.data || res.data;
+  }
+
+  static async getVenueAvailability(venueId, startTime, endTime) {
+    const res = await CourtService.getVenueAvailability(venueId, startTime, endTime);
     return res.data.data || res.data;
   }
 
