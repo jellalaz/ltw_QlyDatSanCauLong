@@ -46,102 +46,148 @@ function Signup() {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
-        <h1 className="auth-title">Đăng Ký</h1>
-        <p className="auth-subtitle">Tạo tài khoản mới</p>
-
-        {error && (
-          <div className="error-message">
-            <span>❌ {error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="fullname">Họ Tên <span className="required">*</span></label>
-            <input
-              id="fullname"
-              type="text"
-              name="fullname"
-              value={formData.fullname}
-              onChange={handleChange}
-              placeholder="Nhập họ tên đầy đủ"
-              disabled={loading}
-              required
+      <div className="auth-split">
+        <section className="auth-visual">
+          <div className="auth-visual-media">
+            <iframe
+              src="https://my.spline.design/3dtextbluecopy-G8ERc7d5AZY6RX2Pd9RHh1pv/"
+              title="Spline 3D"
+              frameBorder="0"
+              width="100%"
+              height="100%"
             />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="email">Email <span className="required">*</span></label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Ví dụ: email@example.com"
-              disabled={loading}
-              required
-            />
+          <div className="auth-visual__content auth-visual__content--login">
+            <div className="auth-hero-head auth-hero-head--login">
+              <div className="auth-brand">Quản Lý Sân Cầu Lông</div>
+              <h1 className="auth-hero-title">Đặt sân cầu lông nhanh và chính xác</h1>
+              <p className="auth-hero-subtitle">
+                Tìm sân gần bạn, xem khung giờ, và đặt lịch chỉ trong vài bước.
+              </p>
+            </div>
+            <div className="auth-hero-actions">
+              <button type="button" className="auth-secondary-btn" onClick={() => navigate('/venues')}>
+                Khám phá sân
+              </button>
+              <span className="auth-hero-note">Hỗ trợ người dùng, chủ sân.</span>
+            </div>
+            <div className="auth-hero-stats">
+              <div className="auth-hero-stat">
+                <span>24/7</span>
+                <small>Đặt sân linh hoạt</small>
+              </div>
+              <div className="auth-hero-stat">
+                <span>Minh bạch</span>
+                <small>Giá theo giờ rõ ràng</small>
+              </div>
+              <div className="auth-hero-stat">
+                <span>Thông báo</span>
+                <small>Cập nhật lịch nhanh</small>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <div className="form-group">
-            <label htmlFor="phone">Số Điện Thoại <span className="required">*</span></label>
-            <input
-              id="phone"
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="Ví dụ: 0912345678 (10-11 số)"
-              disabled={loading}
-              required
-            />
+        <section className="auth-panel">
+          <div className="auth-card glass-card">
+            <div style={{ textAlign: 'center', fontSize: '40px', marginBottom: '4px' }}>🏸</div>
+            <h1 className="auth-title">Đăng ký tài khoản</h1>
+            <p className="auth-subtitle">Hoàn tất thông tin để bắt đầu đặt sân</p>
+
+            {error && (
+              <div className="error-message">
+                <span>❌ {error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="auth-form">
+              <div className="form-group">
+                <label htmlFor="fullname">👤 Họ tên <span className="required">*</span></label>
+                <input
+                  id="fullname"
+                  type="text"
+                  name="fullname"
+                  value={formData.fullname}
+                  onChange={handleChange}
+                  placeholder="Nhập họ tên đầy đủ"
+                  disabled={loading}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">📧 Email <span className="required">*</span></label>
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Ví dụ: email@example.com"
+                  disabled={loading}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phone">📱 Số điện thoại <span className="required">*</span></label>
+                <input
+                  id="phone"
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="Ví dụ: 0912345678"
+                  disabled={loading}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">🔒 Mật khẩu <span className="required">*</span></label>
+                <input
+                  id="password"
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Nhập mật khẩu"
+                  disabled={loading}
+                  required
+                />
+                <small className="form-hint">Mật khẩu phải có ít nhất 6 ký tự</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="confirmPassword">🔐 Xác nhận mật khẩu <span className="required">*</span></label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Nhập lại mật khẩu"
+                  disabled={loading}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? '⏳ Đang đăng ký...' : '✓ Đăng Ký'}
+              </button>
+            </form>
+
+            <p className="auth-link">
+              Đã có tài khoản?{' '}
+              <a href="/login" onClick={(e) => {
+                e.preventDefault();
+                navigate('/login');
+              }}>
+                Đăng nhập ngay
+              </a>
+            </p>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Mật Khẩu <span className="required">*</span></label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Ít nhất 6 ký tự"
-              disabled={loading}
-              required
-            />
-            <small className="form-hint">💡 Mật khẩu phải có ít nhất 6 ký tự</small>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Xác Nhận Mật Khẩu <span className="required">*</span></label>
-            <input
-              id="confirmPassword"
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Nhập lại mật khẩu"
-              disabled={loading}
-              required
-            />
-          </div>
-
-          <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? '⏳ Đang đăng ký...' : '✓ Đăng Ký'}
-          </button>
-        </form>
-
-        <p className="auth-link">
-          Đã có tài khoản?{' '}
-          <a href="/login" onClick={(e) => {
-            e.preventDefault();
-            navigate('/login');
-          }}>
-            Đăng nhập ngay
-          </a>
-        </p>
+        </section>
       </div>
     </div>
   );
