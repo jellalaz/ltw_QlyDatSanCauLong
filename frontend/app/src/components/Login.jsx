@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AuthController from '../controllers/AuthController';
 import '../styles/Auth.css';
 
@@ -8,6 +8,11 @@ import '../styles/Auth.css';
  */
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = location.state?.from
+    ? `${location.state.from.pathname || ''}${location.state.from.search || ''}${location.state.from.hash || ''}`
+    : '/home';
+
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -25,7 +30,7 @@ function Login() {
 
       const loginData = { phone: phone.trim(), password };
       await AuthController.login(loginData);
-      navigate('/home');
+      navigate(returnTo, { replace: true });
     } catch (err) {
       const errorMessage = err.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
       setError(errorMessage);

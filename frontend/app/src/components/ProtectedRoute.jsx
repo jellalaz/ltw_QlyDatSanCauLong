@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import AuthService from '../services/AuthService';
 
 /**
@@ -9,10 +9,11 @@ import AuthService from '../services/AuthService';
  */
 function ProtectedRoute({ children, allowedRoles }) {
   const token = AuthService.getToken();
+  const location = useLocation();
 
   // Chưa đăng nhập → về login
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   // Nếu có yêu cầu role cụ thể → kiểm tra

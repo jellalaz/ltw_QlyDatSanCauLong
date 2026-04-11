@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import AuthController from '../controllers/AuthController';
 import UserController from '../controllers/UserController';
@@ -6,6 +6,7 @@ import UserController from '../controllers/UserController';
 function RoleProtectedRoute({ children, role }) {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const checkRole = async () => {
@@ -30,7 +31,7 @@ function RoleProtectedRoute({ children, role }) {
   }, [role]);
 
   if (!AuthController.isAuthenticated()) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   if (loading) {
