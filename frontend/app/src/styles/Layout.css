@@ -536,6 +536,12 @@
   justify-content: space-between;
 }
 
+/* Keep card header actions content-sized even if another stylesheet sets .btn flex */
+.card-header .btn {
+  flex: 0 0 auto;
+  width: auto;
+}
+
 .card-title {
   font-size: 16px;
   font-weight: 600;

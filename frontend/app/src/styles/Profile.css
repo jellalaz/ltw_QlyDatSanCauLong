@@ -151,8 +151,8 @@
   margin-top: 30px;
 }
 
-.btn-primary,
-.btn-secondary {
+.profile-container .btn-primary,
+.profile-container .btn-secondary {
   flex: 1;
   padding: 12px 20px;
   border: none;
@@ -163,33 +163,33 @@
   transition: all 0.3s ease;
 }
 
-.btn-primary {
+.profile-container .btn-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
-.btn-primary:hover {
+.profile-container .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
 }
 
-.btn-primary:disabled {
+.profile-container .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-.btn-secondary {
+.profile-container .btn-secondary {
   background-color: #f0f0f0;
   color: #333;
   border: 2px solid #e0e0e0;
 }
 
-.btn-secondary:hover {
+.profile-container .btn-secondary:hover {
   background-color: #e0e0e0;
 }
 
-.btn-secondary:disabled {
+.profile-container .btn-secondary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -236,8 +236,8 @@
     flex-direction: column;
   }
 
-  .btn-primary,
-  .btn-secondary {
+  .profile-container .btn-primary,
+  .profile-container .btn-secondary {
     width: 100%;
   }
 }
@@ -326,7 +326,7 @@
   color: #aaa;
 }
 
-.btn-primary {
+.auth-container .btn-primary {
   padding: 12px 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -339,12 +339,12 @@
   margin-top: 10px;
 }
 
-.btn-primary:hover {
+.auth-container .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
 }
 
-.btn-primary:disabled {
+.auth-container .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
