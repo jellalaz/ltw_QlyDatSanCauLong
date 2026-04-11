@@ -30,7 +30,7 @@ function Sidebar({ role, user }) {
     { icon: '📅', label: 'Quản lý đặt sân', to: '/owner/bookings' },
 
     { section: 'Tài Khoản' },
-    { icon: '👤', label: 'Thông tin cá nhân', to: '/profile' },
+    { icon: '👤', label: 'Thông tin cá nhân', to: '/owner/profile' },
     { icon: '🏠', label: 'Trang tổng quan', to: '/home' },
   ];
 
@@ -43,7 +43,7 @@ function Sidebar({ role, user }) {
     { icon: '🏟️', label: 'Kiểm duyệt sân', to: '/admin/venues' },
 
     { section: 'Tài Khoản' },
-    { icon: '👤', label: 'Thông tin cá nhân', to: '/profile' },
+    { icon: '👤', label: 'Thông tin cá nhân', to: '/admin/profile' },
     { icon: '🏠', label: 'Trang tổng quan', to: '/home' },
   ];
 

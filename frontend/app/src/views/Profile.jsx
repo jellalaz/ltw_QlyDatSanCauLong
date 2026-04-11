@@ -191,9 +191,6 @@ function Profile() {
     <div className="profile-container">
       {/* Header */}
       <header className="profile-header">
-        <button className="btn-back" onClick={() => navigate('/home')}>
-          ← Quay lại
-        </button>
         <h1>Thông Tin Cá Nhân</h1>
       </header>
 

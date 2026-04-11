@@ -9,6 +9,7 @@ import VenueForm from '../views/owner/VenueForm';
 import CourtManage from '../views/owner/CourtManage';
 import CourtForm from '../views/owner/CourtForm';
 import BookingManage from '../views/owner/BookingManage';
+import Profile from '../views/Profile';
 
 /**
  * Các route dành cho OWNER (cần role ROLE_OWNER)
@@ -32,6 +33,7 @@ const ownerRoutes = [
     <Route path="venues/:venueId/courts/new" element={<VenueForm mode="edit" />} />
     <Route path="venues/:venueId/courts/:courtId/edit" element={<CourtForm mode="edit" />} />
     <Route path="bookings" element={<BookingManage />} />
+    <Route path="profile" element={<Profile />} />
   </Route>,
 ];
 

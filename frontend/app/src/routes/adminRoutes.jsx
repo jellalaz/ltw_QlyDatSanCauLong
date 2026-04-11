@@ -6,6 +6,7 @@ import MainLayout from '../components/layout/MainLayout';
 import AdminDashboard from '../views/admin/AdminDashboard';
 import UserManage from '../views/admin/UserManage';
 import VenueModerate from '../views/admin/VenueModerate';
+import Profile from '../views/Profile';
 
 /**
  * Các route dành cho ADMIN (cần role ROLE_ADMIN)
@@ -24,6 +25,7 @@ const adminRoutes = [
     <Route index element={<AdminDashboard />} />
     <Route path="users" element={<UserManage />} />
     <Route path="venues" element={<VenueModerate />} />
+    <Route path="profile" element={<Profile />} />
   </Route>,
 ];
 
