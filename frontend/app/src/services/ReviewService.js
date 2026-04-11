@@ -2,27 +2,24 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
-/**
- * ReviewService - Gọi các API đánh giá sân
- * Tương ứng với: ReviewController.java
- */
 class ReviewService {
-  /** Lấy danh sách review của 1 cụm sân */
   static getByVenue(venueId) {
     return axios.get(`${API_BASE_URL}/venues/${venueId}/reviews`);
   }
 
-  /** [USER] Viết review */
   static create(bookingId, reviewData) {
     return axios.post(`${API_BASE_URL}/bookings/${bookingId}/review`, reviewData);
   }
 
-  /** [USER] Sửa review của mình */
+  // ✅ Thêm mới - kiểm tra booking đã review chưa
+  static getByBooking(bookingId) {
+    return axios.get(`${API_BASE_URL}/bookings/${bookingId}/review`);
+  }
+
   static update(reviewId, reviewData) {
     return axios.put(`${API_BASE_URL}/reviews/${reviewId}`, reviewData);
   }
 
-  /** [USER] Xóa review của mình */
   static delete(reviewId) {
     return axios.delete(`${API_BASE_URL}/reviews/${reviewId}`);
   }
