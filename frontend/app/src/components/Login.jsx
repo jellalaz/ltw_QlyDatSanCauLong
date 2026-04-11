@@ -46,7 +46,7 @@ function Login() {
         <section className="auth-visual">
           <div className="auth-visual-media">
             <iframe
-              src="https://my.spline.design/3dtextbluecopy-G8ERc7d5AZY6RX2Pd9RHh1pv/"
+              src="https://my.spline.design/3dtextbluecopy-LQDQ9ihKzfFbw9aHQo6s6vki/"
               title="Spline 3D"
               frameBorder="0"
               width="100%"

@@ -61,7 +61,7 @@
   z-index: 2;
   max-width: 560px;
   margin-left: auto;
-  transform: translateX(60px);
+  transform: translateX(87px);
 }
 
 .auth-hero-head {
@@ -172,7 +172,7 @@
   border-radius: 18px;
   animation: slideUp 0.3s ease-out;
   position: relative;
-  left: -70px;
+  left: -142px;
   z-index: 3;
   background: rgba(255, 255, 255, 0.96) !important;
   backdrop-filter: none !important;
