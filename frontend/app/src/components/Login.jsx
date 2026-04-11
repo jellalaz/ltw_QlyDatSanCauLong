@@ -53,8 +53,8 @@ function Login() {
               height="100%"
             />
           </div>
-          <div className="auth-visual__content auth-visual__content--login">
-            <div className="auth-hero-head auth-hero-head--login">
+          <div className="auth-visual__content">
+            <div className="auth-hero-head">
               <div className="auth-brand">Quản Lý Sân Cầu Lông</div>
               <h1 className="auth-hero-title">Đặt sân cầu lông nhanh và chính xác</h1>
               <p className="auth-hero-subtitle">
@@ -85,7 +85,7 @@ function Login() {
         </section>
 
         <section className="auth-panel">
-          <div className="auth-card glass-card">
+          <div className="auth-card">
             <div style={{ textAlign: 'center', fontSize: '40px', marginBottom: '4px' }}>🏸</div>
             <h1 className="auth-title">Đăng nhập tài khoản</h1>
             <p className="auth-subtitle">Bắt đầu đặt sân và quản lý lý lịch của bạn</p>

@@ -45,7 +45,7 @@ function Signup() {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container auth-container--signup">
       <div className="auth-split">
         <section className="auth-visual">
           <div className="auth-visual-media">
@@ -57,8 +57,8 @@ function Signup() {
               height="100%"
             />
           </div>
-          <div className="auth-visual__content auth-visual__content--login">
-            <div className="auth-hero-head auth-hero-head--login">
+          <div className="auth-visual__content">
+            <div className="auth-hero-head">
               <div className="auth-brand">Quản Lý Sân Cầu Lông</div>
               <h1 className="auth-hero-title">Đặt sân cầu lông nhanh và chính xác</h1>
               <p className="auth-hero-subtitle">
@@ -88,8 +88,8 @@ function Signup() {
           </div>
         </section>
 
-        <section className="auth-panel">
-          <div className="auth-card glass-card">
+        <section className="auth-panel auth-panel--signup">
+          <div className="auth-card auth-card--signup">
             <div style={{ textAlign: 'center', fontSize: '40px', marginBottom: '4px' }}>🏸</div>
             <h1 className="auth-title">Đăng ký tài khoản</h1>
             <p className="auth-subtitle">Hoàn tất thông tin để bắt đầu đặt sân</p>
