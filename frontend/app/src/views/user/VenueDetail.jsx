@@ -6,211 +6,214 @@ import ReviewController from '../../controllers/ReviewController';
 import CourtController from '../../controllers/CourtController';
 import '../../styles/Layout.css';
 
-/**
- * VenueDetail - Trang chi tiết 1 cụm sân (USER)
- * TODO: 
- *   - Gọi VenueController.getById(id) để lấy thông tin cụm sân
- *   - Gọi CourtController.getByVenue(id) để lấy danh sách sân lẻ
- *   - Hiển thị CourtList + Lịch trống + Reviews
- */
+// ✅ Fix ngày: Instant từ Java có thể là số epoch giây hoặc string ISO
+const formatReviewDate = (createdAt) => {
+    if (!createdAt) return '';
+    const ms = typeof createdAt === 'number' ? createdAt * 1000 : createdAt;
+    return new Date(ms).toLocaleDateString('vi-VN');
+};
+
 function VenueDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [venue, setVenue] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [courts, setCourts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [courtLoading, setCourtLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [courtError, setCourtError] = useState('');
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [venue, setVenue] = useState(null);
+    const [reviews, setReviews] = useState([]);
+    const [courts, setCourts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [courtLoading, setCourtLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [courtError, setCourtError] = useState('');
 
-  useEffect(() => {
-    let isMounted = true;
+    useEffect(() => {
+        let isMounted = true;
 
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        setCourtLoading(true);
-        setCourtError('');
-        const [venueData, reviewData, courtData] = await Promise.all([
-          VenueController.getById(id),
-          ReviewController.getByVenue(id),
-          CourtController.getByVenue(id),
-        ]);
-        if (isMounted) {
-          setVenue(venueData);
-          setReviews(reviewData);
-          setCourts(courtData);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err?.message || 'Không thể tải dữ liệu sân');
-          setCourtError('Không thể tải danh sách sân lẻ');
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-          setCourtLoading(false);
-        }
-      }
-    };
+        const loadData = async () => {
+            try {
+                setLoading(true);
+                setCourtLoading(true);
+                setCourtError('');
+                const [venueData, reviewData, courtData] = await Promise.all([
+                    VenueController.getById(id),
+                    ReviewController.getByVenue(id),
+                    CourtController.getByVenue(id),
+                ]);
+                if (isMounted) {
+                    setVenue(venueData);
+                    setReviews(reviewData);
+                    setCourts(courtData);
+                }
+            } catch (err) {
+                if (isMounted) {
+                    setError(err?.message || 'Không thể tải dữ liệu sân');
+                    setCourtError('Không thể tải danh sách sân lẻ');
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                    setCourtLoading(false);
+                }
+            }
+        };
 
-    loadData();
+        loadData();
 
-    return () => {
-      isMounted = false;
-    };
-  }, [id]);
+        return () => {
+            isMounted = false;
+        };
+    }, [id]);
 
-  const addressText = useMemo(() => {
-    if (!venue?.address) return '';
-    const { detailAddress, district, provinceOrCity, street, city } = venue.address;
-    return [detailAddress || street, district, provinceOrCity || city].filter(Boolean).join(', ');
-  }, [venue]);
+    const addressText = useMemo(() => {
+        if (!venue?.address) return '';
+        const { detailAddress, district, provinceOrCity, street, city } = venue.address;
+        return [detailAddress || street, district, provinceOrCity || city].filter(Boolean).join(', ');
+    }, [venue]);
 
-  const ratingText = useMemo(() => {
-    if (!venue) return '0.0';
-    if (venue.rating && venue.reviewCount) return venue.rating.toFixed(1);
-    if (!reviews.length) return '0.0';
-    const total = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
-    return (total / reviews.length).toFixed(1);
-  }, [venue, reviews]);
+    const ratingText = useMemo(() => {
+        if (!venue) return '0.0';
+        if (venue.rating && venue.reviewCount) return venue.rating.toFixed(1);
+        if (!reviews.length) return '0.0';
+        const total = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+        return (total / reviews.length).toFixed(1);
+    }, [venue, reviews]);
 
-  const reviewCount = venue?.reviewCount ?? reviews.length;
+    const reviewCount = venue?.reviewCount ?? reviews.length;
 
-  const venueImages = useMemo(() => {
-    const images = Array.isArray(venue?.images) ? venue.images.filter(Boolean) : [];
-    if (images.length) return images;
-    return venue?.imageUrl ? [venue.imageUrl] : [];
-  }, [venue]);
+    const venueImages = useMemo(() => {
+        const images = Array.isArray(venue?.images) ? venue.images.filter(Boolean) : [];
+        if (images.length) return images;
+        return venue?.imageUrl ? [venue.imageUrl] : [];
+    }, [venue]);
 
-  const galleryItems = useMemo(() => {
-    const courtImages = courts
-      .filter((court) => court.imageUrl)
-      .map((court) => ({
-        id: `court-${court.id}`,
-        url: court.imageUrl,
-        title: court.name || `Sân ${court.id}`,
-      }));
+    const galleryItems = useMemo(() => {
+        const courtImages = courts
+            .filter((court) => court.imageUrl)
+            .map((court) => ({
+                id: `court-${court.id}`,
+                url: court.imageUrl,
+                title: court.name || `Sân ${court.id}`,
+            }));
 
-    if (courtImages.length > 0) return courtImages;
+        if (courtImages.length > 0) return courtImages;
 
-    return venueImages.map((url, index) => ({
-      id: `venue-${index}`,
-      url,
-      title: venue?.name || `Ảnh sân ${index + 1}`,
-    }));
-  }, [courts, venue?.name, venueImages]);
+        return venueImages.map((url, index) => ({
+            id: `venue-${index}`,
+            url,
+            title: venue?.name || `Ảnh sân ${index + 1}`,
+        }));
+    }, [courts, venue?.name, venueImages]);
 
-  if (loading) {
-    return <div className="card"><div className="card-body">Đang tải dữ liệu...</div></div>;
-  }
+    if (loading) {
+        return <div className="card"><div className="card-body">Đang tải dữ liệu...</div></div>;
+    }
 
-  if (error) {
-    return <div className="card"><div className="card-body">{error}</div></div>;
-  }
+    if (error) {
+        return <div className="card"><div className="card-body">{error}</div></div>;
+    }
 
-  if (!venue) {
-    return <div className="card"><div className="card-body">Không tìm thấy sân.</div></div>;
-  }
+    if (!venue) {
+        return <div className="card"><div className="card-body">Không tìm thấy sân.</div></div>;
+    }
 
-  return (
-    <div>
-      <PageHeader
-        title={venue.name}
-        subtitle={addressText ? `📍 ${addressText}` : '📍 Chưa có địa chỉ'}
-        actions={
-          <button className="btn btn-secondary" onClick={() => navigate('/venues')}>
-            ← Quay lại
-          </button>
-        }
-      />
+    return (
+        <div>
+            <PageHeader
+                title={venue.name}
+                subtitle={addressText ? `📍 ${addressText}` : '📍 Chưa có địa chỉ'}
+                actions={
+                    <button className="btn btn-secondary" onClick={() => navigate('/venues')}>
+                        ← Quay lại
+                    </button>
+                }
+            />
 
-      {/* Info Card */}
-      <div className="card" style={{ marginBottom: '24px' }}>
-        <div className="card-body">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div>
-              <p style={{ margin: '0 0 8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Mô tả</p>
-              <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>{venue.description || 'Chưa có mô tả'}</p>
-            </div>
-            <div>
-              <p style={{ margin: '0 0 8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Giờ mở cửa</p>
-              <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                🕐 {venue.openTime || '--:--'} – {venue.closeTime || '--:--'}
-              </p>
-            </div>
-          </div>
-          <div style={{ marginTop: '16px', display: 'flex', gap: '12px' }}>
-            <button className="btn btn-primary" onClick={() => navigate(`/bookings/new?venueId=${id}`)}>
-              📅 Đặt sân ngay
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Venue/Court Images Section */}
-      <div className="card" style={{ marginBottom: '24px' }}>
-        <div className="card-header">
-          <h3 className="card-title">Hình ảnh sân</h3>
-        </div>
-        <div className="card-body">
-          {courtLoading ? (
-            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>Đang tải hình ảnh sân...</p>
-          ) : courtError ? (
-            <p style={{ margin: 0, fontSize: '14px', color: '#dc2626' }}>{courtError}</p>
-          ) : galleryItems.length === 0 ? (
-            <div style={{ height: '220px', borderRadius: '12px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '48px' }}>
-              🏸
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '14px' }}>
-              {galleryItems.map((item) => (
-                <div key={item.id} style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', background: '#fff' }}>
-                  <img
-                    src={item.url}
-                    alt={item.title}
-                    style={{ width: '100%', height: '170px', objectFit: 'cover' }}
-                  />
+            {/* Info Card */}
+            <div className="card" style={{ marginBottom: '24px' }}>
+                <div className="card-body">
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div>
+                            <p style={{ margin: '0 0 8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Mô tả</p>
+                            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>{venue.description || 'Chưa có mô tả'}</p>
+                        </div>
+                        <div>
+                            <p style={{ margin: '0 0 8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Giờ mở cửa</p>
+                            <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                                🕐 {venue.openTime || '--:--'} – {venue.closeTime || '--:--'}
+                            </p>
+                        </div>
+                    </div>
+                    <div style={{ marginTop: '16px', display: 'flex', gap: '12px' }}>
+                        <button className="btn btn-primary" onClick={() => navigate(`/bookings/new?venueId=${id}`)}>
+                            📅 Đặt sân ngay
+                        </button>
+                    </div>
                 </div>
-              ))}
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Reviews Section */}
-      <div className="card">
-        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 className="card-title">Đánh giá ({reviewCount})</h3>
-          <span style={{ fontSize: '14px', color: '#f59e0b', fontWeight: '600' }}>⭐ {ratingText}</span>
-        </div>
-        <div className="card-body">
-          {reviews.length === 0 ? (
-            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>Chưa có đánh giá nào.</p>
-          ) : (
-            <div style={{ display: 'grid', gap: '16px' }}>
-              {reviews.map((review) => (
-                <div key={review.id} style={{ padding: '12px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <strong style={{ fontSize: '14px' }}>{review.authorName || 'Người dùng'}</strong>
-                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                      {review.createdAt ? new Date(review.createdAt).toLocaleDateString('vi-VN') : ''}
+            {/* Venue/Court Images Section */}
+            <div className="card" style={{ marginBottom: '24px' }}>
+                <div className="card-header">
+                    <h3 className="card-title">Hình ảnh sân</h3>
+                </div>
+                <div className="card-body">
+                    {courtLoading ? (
+                        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>Đang tải hình ảnh sân...</p>
+                    ) : courtError ? (
+                        <p style={{ margin: 0, fontSize: '14px', color: '#dc2626' }}>{courtError}</p>
+                    ) : galleryItems.length === 0 ? (
+                        <div style={{ height: '220px', borderRadius: '12px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '48px' }}>
+                            🏸
+                        </div>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '14px' }}>
+                            {galleryItems.map((item) => (
+                                <div key={item.id} style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', background: '#fff' }}>
+                                    <img
+                                        src={item.url}
+                                        alt={item.title}
+                                        style={{ width: '100%', height: '170px', objectFit: 'cover' }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="card">
+                <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 className="card-title">Đánh giá ({reviewCount})</h3>
+                    <span style={{ fontSize: '14px', color: '#f59e0b', fontWeight: '600' }}>⭐ {ratingText}</span>
+                </div>
+                <div className="card-body">
+                    {reviews.length === 0 ? (
+                        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>Chưa có đánh giá nào.</p>
+                    ) : (
+                        <div style={{ display: 'grid', gap: '16px' }}>
+                            {reviews.map((review) => (
+                                <div key={review.id} style={{ padding: '12px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        {/* ✅ Sửa: authorName → userFullname */}
+                                        <strong style={{ fontSize: '14px' }}>{review.userFullname || 'Người dùng'}</strong>
+                                        {/* ✅ Sửa: format ngày đúng */}
+                                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                      {formatReviewDate(review.createdAt)}
                     </span>
-                  </div>
-                  <div style={{ marginTop: '6px', color: '#f59e0b', fontWeight: '600', fontSize: '13px' }}>
-                    {'⭐'.repeat(review.rating || 0)}
-                    <span style={{ marginLeft: '6px', color: 'var(--text-secondary)' }}>{review.rating || 0}/5</span>
-                  </div>
-                  <p style={{ margin: '8px 0 0', fontSize: '14px', color: 'var(--text-primary)' }}>{review.comment}</p>
+                                    </div>
+                                    <div style={{ marginTop: '6px', color: '#f59e0b', fontWeight: '600', fontSize: '13px' }}>
+                                        {'⭐'.repeat(review.rating || 0)}
+                                        <span style={{ marginLeft: '6px', color: 'var(--text-secondary)' }}>{review.rating || 0}/5</span>
+                                    </div>
+                                    <p style={{ margin: '8px 0 0', fontSize: '14px', color: 'var(--text-primary)' }}>{review.comment}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-              ))}
             </div>
-          )}
         </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default VenueDetail;
+
