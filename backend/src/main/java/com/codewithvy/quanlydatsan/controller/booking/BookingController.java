@@ -1,4 +1,4 @@
-package com.codewithvy.quanlydatsan.controller;
+package com.codewithvy.quanlydatsan.controller.booking;
 
 import com.codewithvy.quanlydatsan.dto.*;
 import com.codewithvy.quanlydatsan.service.BookingService;
@@ -134,3 +134,4 @@ public class BookingController {
             "Đã upload ảnh thành công. Vui lòng nhấn 'Xác nhận thanh toán' để gửi cho chủ sân."));
     }
 }
+

@@ -16,7 +16,6 @@ import com.codewithvy.quanlydatsan.repository.ReviewRepository;
 import com.codewithvy.quanlydatsan.repository.RoleRepository;
 import com.codewithvy.quanlydatsan.repository.UserRepository;
 import com.codewithvy.quanlydatsan.repository.VenuesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,32 +34,35 @@ public class UserService {
 
     private static final Set<String> PROTECTED_SYSTEM_ADMIN_PHONES = Set.of("09000000", "0900000000");
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final BookingRepository bookingRepository;
+    private final BookingItemRepository bookingItemRepository;
+    private final ReviewRepository reviewRepository;
+    private final NotificationRepository notificationRepository;
+    private final VenuesRepository venuesRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private BookingRepository bookingRepository;
-
-    @Autowired
-    private BookingItemRepository bookingItemRepository;
-
-    @Autowired
-    private ReviewRepository reviewRepository;
-
-    @Autowired
-    private NotificationRepository notificationRepository;
-
-    @Autowired
-    private VenuesRepository venuesRepository;
-
-    @Autowired
-    private PasswordResetTokenRepository passwordResetTokenRepository;
+    public UserService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder,
+                       BookingRepository bookingRepository,
+                       BookingItemRepository bookingItemRepository,
+                       ReviewRepository reviewRepository,
+                       NotificationRepository notificationRepository,
+                       VenuesRepository venuesRepository,
+                       PasswordResetTokenRepository passwordResetTokenRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.bookingRepository = bookingRepository;
+        this.bookingItemRepository = bookingItemRepository;
+        this.reviewRepository = reviewRepository;
+        this.notificationRepository = notificationRepository;
+        this.venuesRepository = venuesRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+    }
 
     /**
      * Lấy thông tin user hiện tại từ SecurityContext
