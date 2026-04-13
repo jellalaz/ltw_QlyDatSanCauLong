@@ -222,7 +222,7 @@ function BookingList() {
               )}
               {!loading && !error && filteredBookings.map((b) => {
                 const s = statusMap[b.status] || { label: b.status, cls: 'badge-default' };
-                const canCancel = b.status === 'PENDING_PAYMENT';
+                const canCancel = b.status === 'PENDING_PAYMENT' || b.status === 'PAYMENT_UPLOADED';
                 const canPay    = b.status === 'PENDING_PAYMENT';
                 // ✅ THÊM: điều kiện đánh giá
                 const canReview      = b.status === 'CONFIRMED' || b.status === 'COMPLETED';

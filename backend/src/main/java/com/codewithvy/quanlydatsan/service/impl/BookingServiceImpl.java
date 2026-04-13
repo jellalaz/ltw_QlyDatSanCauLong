@@ -387,6 +387,23 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         Booking updatedBooking = bookingRepository.save(booking);
+
+        // Gửi thông báo cho chủ sân biết khách đã hủy đơn
+        List<BookingItem> items = bookingItemRepository.findByBookingId(updatedBooking.getId());
+        if (!items.isEmpty()) {
+            User owner = items.get(0).getCourt().getVenues().getOwner();
+            String venueName = items.get(0).getCourt().getVenues().getName();
+            notificationService.createNotification(
+                    owner,
+                    currentUser,
+                    updatedBooking,
+                    NotificationType.BOOKING_CANCELLED,
+                    "Khách đã hủy đơn đặt sân",
+                    String.format("Khách hàng %s đã hủy đơn đặt sân #%d tại %s.",
+                            currentUser.getFullname(), updatedBooking.getId(), venueName)
+            );
+        }
+
         return mapToBookingResponse(updatedBooking);
     }
 
