@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import AuthController from '../../controllers/AuthController';
+import NotificationService from '../../services/NotificationService';
 import '../../../src/styles/Layout.css';
 
 /**
@@ -10,7 +11,36 @@ import '../../../src/styles/Layout.css';
 function Header({ user, onLogout }) {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
+
+  const isAuthenticated = Boolean(user) || AuthController.isAuthenticated();
+
+  const fetchUnread = useCallback(async () => {
+    if (!isAuthenticated) {
+      setUnreadCount(0);
+      return;
+    }
+    try {
+      const res = await NotificationService.countUnread();
+      const n = res?.data?.data ?? res?.data ?? 0;
+      setUnreadCount(typeof n === 'number' ? n : Number(n) || 0);
+    } catch {
+      setUnreadCount(0);
+    }
+  }, [isAuthenticated]);
+
+  // Poll mỗi 30s + lắng nghe event cập nhật từ trang Notifications
+  useEffect(() => {
+    fetchUnread();
+    const intervalId = setInterval(fetchUnread, 30000);
+    const onUpdate = () => fetchUnread();
+    window.addEventListener('notifications:updated', onUpdate);
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('notifications:updated', onUpdate);
+    };
+  }, [fetchUnread]);
 
   // Đóng dropdown khi click ngoài
   useEffect(() => {
@@ -39,7 +69,7 @@ function Header({ user, onLogout }) {
 
   const isOwner = user?.roles?.includes('ROLE_OWNER');
   const isAdmin = user?.roles?.includes('ROLE_ADMIN');
-  const isAuthenticated = Boolean(user) || AuthController.isAuthenticated();
+  const hasUnread = unreadCount > 0;
 
   return (
     <header className="header">
@@ -100,10 +130,16 @@ function Header({ user, onLogout }) {
             <>
               {/* Notification Bell */}
               <NavLink to="/notifications">
-                <button className="header-icon-btn" title="Thông báo">
-                  🔔
-                  {/* Hiện badge đỏ nếu có thông báo chưa đọc */}
-                  <span className="notification-badge" />
+                <button
+                  className={`header-icon-btn notification-btn ${hasUnread ? 'has-unread' : ''}`}
+                  title={hasUnread ? `${unreadCount} thông báo chưa đọc` : 'Không có thông báo mới'}
+                >
+                  <span className={`notification-bell ${hasUnread ? 'ring' : ''}`}>🔔</span>
+                  {hasUnread && (
+                    <span className="notification-badge">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
                 </button>
               </NavLink>
 

@@ -37,11 +37,16 @@ function Notifications() {
     loadNotifications();
   }, []);
 
+  const notifyBadgeRefresh = () => {
+    window.dispatchEvent(new Event('notifications:updated'));
+  };
+
   const handleMarkOne = async (id, isRead) => {
     if (isRead) return;
     try {
       await NotificationService.markAsRead(id);
       setNotifications((prev) => prev.map((item) => (item.id === id ? { ...item, isRead: true } : item)));
+      notifyBadgeRefresh();
     } catch {
       // Ignore single-mark failures to keep UX smooth.
     }
@@ -52,6 +57,7 @@ function Notifications() {
       setMarkingAll(true);
       await NotificationService.markAllAsRead();
       setNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })));
+      notifyBadgeRefresh();
     } finally {
       setMarkingAll(false);
     }

@@ -389,13 +389,51 @@
 
 .notification-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 8px;
-  height: 8px;
-  background: var(--danger);
-  border-radius: 50%;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #ef4444;
+  color: white;
+  border-radius: 999px;
   border: 2px solid white;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+}
+
+.notification-btn.has-unread {
+  color: var(--text-primary);
+  border-color: #fca5a5;
+  background: #fff5f5;
+}
+
+.notification-btn.has-unread:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+}
+
+.notification-bell {
+  display: inline-block;
+  transform-origin: 50% 0%;
+}
+
+.notification-bell.ring {
+  animation: bellRing 1.6s ease-in-out infinite;
+}
+
+@keyframes bellRing {
+  0%, 50%, 100% { transform: rotate(0deg); }
+  5%  { transform: rotate(14deg); }
+  15% { transform: rotate(-12deg); }
+  25% { transform: rotate(10deg); }
+  35% { transform: rotate(-8deg); }
+  45% { transform: rotate(4deg); }
 }
 
 .header-user-btn {
