@@ -107,19 +107,26 @@ function Notifications() {
         {!loading && notifications.map((n) => (
           <div
             key={n.id}
+            className={`notifications-list-item ${n.isRead ? 'is-read' : 'is-unread'}`}
             style={{
-              padding: '16px 20px',
-              borderBottom: '1px solid var(--border)',
+              cursor: 'pointer',
               background: n.isRead ? 'transparent' : 'var(--primary-bg)',
-              display: 'flex',
-              gap: '14px',
-              alignItems: 'flex-start',
-              cursor: n.isRead ? 'default' : 'pointer',
-              transition: 'background 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = n.isRead ? '#eaf0ff' : '#dfe8ff';
+              e.currentTarget.style.boxShadow = n.isRead
+                ? 'inset 4px 0 0 #818cf8'
+                : 'inset 4px 0 0 #4f46e5';
+              e.currentTarget.style.transform = 'translateX(3px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = n.isRead ? 'transparent' : 'var(--primary-bg)';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.transform = 'translateX(0)';
             }}
             onClick={() => handleOpenNotification(n)}
           >
-            <div style={{ fontSize: '24px', flexShrink: 0 }}>
+            <div className="notifications-item-icon" style={{ fontSize: '24px', flexShrink: 0 }}>
               {n.isRead ? '🔔' : '🔴'}
             </div>
             <div style={{ flex: 1 }}>

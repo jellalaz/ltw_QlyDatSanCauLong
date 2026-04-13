@@ -243,15 +243,25 @@ function Header({ user, onLogout }) {
                       <button
                         key={item.id}
                         type="button"
-                        className="dropdown-item"
+                        className={`dropdown-item notification-preview-item ${item.isRead ? 'is-read' : 'is-unread'}`}
                         onClick={() => handleNotificationClick(item)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#dfe8ff';
+                          e.currentTarget.style.boxShadow = 'inset 4px 0 0 #4f46e5';
+                          e.currentTarget.style.transform = 'translateX(3px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = item.isRead ? 'transparent' : '#eef2ff';
+                          e.currentTarget.style.boxShadow = 'none';
+                          e.currentTarget.style.transform = 'translateX(0)';
+                        }}
                         style={{
                           width: '100%',
                           border: 'none',
                           textAlign: 'left',
-                          background: item.isRead ? 'transparent' : '#eef2ff',
                           alignItems: 'flex-start',
                           flexDirection: 'column',
+                          background: item.isRead ? 'transparent' : '#eef2ff',
                         }}
                       >
                         <span style={{ fontWeight: item.isRead ? 600 : 700 }}>{item.title}</span>
