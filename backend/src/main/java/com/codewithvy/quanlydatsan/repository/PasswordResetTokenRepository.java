@@ -14,4 +14,6 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
     Optional<PasswordResetToken> findByToken(String token);
     /** Xoá các token có expiryDate trước thời điểm cutoff (dọn rác định kỳ). */
     void deleteByExpiryDateBefore(Instant cutoff);
+
+    void deleteByUserId(Long userId);
 }

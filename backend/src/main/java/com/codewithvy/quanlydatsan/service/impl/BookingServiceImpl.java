@@ -165,6 +165,20 @@ public class BookingServiceImpl implements BookingService {
                 court.getId(), itemRequest.getStartTime(), itemRequest.getEndTime(), itemPrice);
         }
 
+        List<BookingItem> createdItems = bookingItemRepository.findByBookingId(savedBooking.getId());
+        if (!createdItems.isEmpty()) {
+            User owner = createdItems.get(0).getCourt().getVenues().getOwner();
+            String venueName = createdItems.get(0).getCourt().getVenues().getName();
+            notificationService.createNotification(
+                    owner,
+                    user,
+                    savedBooking,
+                    NotificationType.BOOKING_CREATED,
+                    "Có đơn đặt sân mới",
+                    String.format("%s vừa tạo đơn #%d tại %s.", user.getFullname(), savedBooking.getId(), venueName)
+            );
+        }
+
         log.info("✅ Successfully created booking #{} with {} court(s), totalPrice={}",
             savedBooking.getId(), itemsToBook.size(), savedBooking.getTotalPrice());
 
@@ -387,6 +401,15 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         Booking updatedBooking = bookingRepository.save(booking);
+
+        notificationService.createNotification(
+                updatedBooking.getUser(),
+                null,
+                updatedBooking,
+                NotificationType.BOOKING_CANCELLED,
+                "Đơn đặt sân đã hủy",
+                String.format("Đơn đặt sân #%d của bạn đã được hủy thành công.", updatedBooking.getId())
+        );
 
         // Gửi thông báo cho chủ sân biết khách đã hủy đơn
         List<BookingItem> items = bookingItemRepository.findByBookingId(updatedBooking.getId());

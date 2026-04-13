@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
 import NotificationService from '../../services/NotificationService';
 import '../../styles/Layout.css';
@@ -8,6 +9,7 @@ import '../../styles/Layout.css';
  * TODO: Gọi NotificationService.getAll() và markAsRead()
  */
 function Notifications() {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -50,6 +52,17 @@ function Notifications() {
     } catch {
       // Ignore single-mark failures to keep UX smooth.
     }
+  };
+
+  const resolveTarget = (item) => {
+    if (item?.targetPath) return item.targetPath;
+    if (item?.bookingId) return `/bookings/${item.bookingId}/payment`;
+    return '/notifications';
+  };
+
+  const handleOpenNotification = async (item) => {
+    await handleMarkOne(item.id, item.isRead);
+    navigate(resolveTarget(item));
   };
 
   const handleMarkAll = async () => {
@@ -104,7 +117,7 @@ function Notifications() {
               cursor: n.isRead ? 'default' : 'pointer',
               transition: 'background 0.15s',
             }}
-            onClick={() => handleMarkOne(n.id, n.isRead)}
+            onClick={() => handleOpenNotification(n)}
           >
             <div style={{ fontSize: '24px', flexShrink: 0 }}>
               {n.isRead ? '🔔' : '🔴'}

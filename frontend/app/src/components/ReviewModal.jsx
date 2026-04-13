@@ -163,13 +163,13 @@ function ReviewModal({ booking, onClose, onReviewed }) {
               }}>{error}</div>
             )}
 
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'stretch' }}>
               <button className="btn btn-secondary" onClick={onClose}
-                style={{ flex: 1 }} disabled={loading}>
+                style={{ width: '100%', height: '44px', boxSizing: 'border-box', margin: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading}>
                 Huỷ
               </button>
               <button className="btn btn-primary" onClick={handleSubmit}
-                style={{ flex: 1 }} disabled={loading}>
+                style={{ width: '100%', height: '44px', boxSizing: 'border-box', margin: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading}>
                 {loading ? 'Đang gửi...' : 'Gửi đánh giá'}
               </button>
             </div>

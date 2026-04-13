@@ -51,6 +51,45 @@ const minuteToHHMM = (totalMinutes) => `${pad(Math.floor(totalMinutes / 60))}:${
 
 const toDateTime = (date, time) => `${date}T${normalizeTime(time)}`;
 
+const toDateTimeMinutes = (dateTimeValue) => {
+  if (dateTimeValue == null) return null;
+
+  // Support Jackson timestamp arrays: [year, month, day, hour, minute, second, nano]
+  if (Array.isArray(dateTimeValue)) {
+    const [, , , hours = 0, minutes = 0] = dateTimeValue;
+    return (Number(hours) * 60) + Number(minutes);
+  }
+
+  if (typeof dateTimeValue === 'object') {
+    const rawHours = dateTimeValue.hour ?? dateTimeValue.hours;
+    const rawMinutes = dateTimeValue.minute ?? dateTimeValue.minutes;
+    if (rawHours != null && rawMinutes != null) {
+      const hours = Number(rawHours);
+      const minutes = Number(rawMinutes);
+      if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+        return (hours * 60) + minutes;
+      }
+    }
+  }
+
+  const rawText = String(dateTimeValue).trim();
+  if (!rawText) return null;
+
+  // Support time-only formats: HH:mm or HH:mm:ss
+  const timeOnly = rawText.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if (timeOnly) {
+    const hours = Number(timeOnly[1]);
+    const minutes = Number(timeOnly[2]);
+    if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+      return (hours * 60) + minutes;
+    }
+  }
+
+  const parsed = new Date(rawText);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return (parsed.getHours() * 60) + parsed.getMinutes();
+};
+
 const isPastDateTimeSlot = (date, slotStart) => {
   if (!date || !slotStart) return false;
   const slotDateTime = new Date(toDateTime(date, slotStart));
@@ -184,10 +223,9 @@ function BookingCreate() {
           const blocked = new Set();
 
           bookedSlots.forEach((booked) => {
-            const start = new Date(booked.startTime);
-            const end = new Date(booked.endTime);
-            const bookedStart = (start.getHours() * 60) + start.getMinutes();
-            const bookedEnd = (end.getHours() * 60) + end.getMinutes();
+            const bookedStart = toDateTimeMinutes(booked.startTime ?? booked.start ?? booked.from);
+            const bookedEnd = toDateTimeMinutes(booked.endTime ?? booked.end ?? booked.to);
+            if (!Number.isFinite(bookedStart) || !Number.isFinite(bookedEnd)) return;
 
             slots.forEach((slot) => {
               if (rangesOverlap(toMinutes(slot.start), toMinutes(slot.end), bookedStart, bookedEnd)) {
@@ -431,16 +469,25 @@ function BookingCreate() {
                           const isPast = isPastDateTimeSlot(selectedDate, slot.start);
                           const isSelected = (selectedSlotsByCourt[courtId] || []).includes(slot.key);
                           const isDisabled = isInactive || isBooked || submitting || isPast;
+                          const isLocked = isInactive || isBooked || isPast;
+                          const cellTitle = isBooked
+                            ? 'Khung giờ đã được đặt'
+                            : (isPast
+                              ? 'Khung giờ đã qua'
+                              : (isInactive ? 'Sân đang bảo trì' : slot.label));
 
                           return (
-                            <td key={`${court.id}-${slot.key}`}>
-                              <button
-                                type="button"
-                                className={`booking-slot-btn ${isSelected ? 'selected' : ''} ${isBooked ? 'booked' : ''} ${isInactive ? 'inactive' : ''} ${isPast ? 'past' : ''}`}
-                                onClick={() => toggleSlot(court.id, slot.key, isDisabled)}
-                                disabled={isDisabled}
-                                title={isPast ? 'Khung giờ đã qua' : (isInactive ? 'Sân đang bảo trì' : slot.label)}
-                              />
+                            <td key={`${court.id}-${slot.key}`} title={cellTitle}>
+                              <span className="booking-slot-tooltip-anchor" title={cellTitle}>
+                                <button
+                                  type="button"
+                                  className={`booking-slot-btn ${isSelected ? 'selected' : ''} ${isLocked ? 'locked' : ''} ${isBooked ? 'booked' : ''} ${isInactive ? 'inactive' : ''} ${isPast ? 'past' : ''}`}
+                                  onClick={() => toggleSlot(court.id, slot.key, isDisabled)}
+                                  disabled={isDisabled}
+                                  style={isLocked ? { pointerEvents: 'none' } : undefined}
+                                  title={cellTitle}
+                                />
+                              </span>
                             </td>
                           );
                         })}

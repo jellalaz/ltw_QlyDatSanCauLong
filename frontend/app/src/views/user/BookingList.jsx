@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
 import BookingController from '../../controllers/BookingController';
+import ReviewController from '../../controllers/ReviewController';
 import ReviewModal from '../../components/ReviewModal'; // ✅ THÊM
 import '../../styles/Layout.css';
 
@@ -93,7 +94,7 @@ function BookingList() {
     PENDING_PAYMENT:  { label: 'Chờ thanh toán',    cls: 'badge-warning' },
     PAYMENT_UPLOADED: { label: 'Chờ chủ sân duyệt', cls: 'badge-info'    },
     CONFIRMED:        { label: 'Đã xác nhận',        cls: 'badge-success' },
-    COMPLETED:        { label: 'Hoàn thành',          cls: 'badge-success' },
+    COMPLETED:        { label: 'Phê duyệt',           cls: 'badge-success' },
     CANCELLED:        { label: 'Đã hủy',             cls: 'badge-danger'  },
     REJECTED:         { label: 'Từ chối',            cls: 'badge-danger'  },
     EXPIRED:          { label: 'Hết hạn',            cls: 'badge-default' },
@@ -113,7 +114,23 @@ function BookingList() {
     }
   };
 
-  useEffect(() => { loadBookings(); }, []);
+  const loadReviewedBookingIds = async () => {
+    try {
+      const reviews = await ReviewController.getMyReviews();
+      const bookingIds = (Array.isArray(reviews) ? reviews : [])
+        .map((review) => Number(review?.bookingId))
+        .filter((id) => Number.isInteger(id) && id > 0);
+      setReviewedIds(new Set(bookingIds));
+    } catch {
+      // Keep UI usable even if review lookup fails.
+      setReviewedIds(new Set());
+    }
+  };
+
+  useEffect(() => {
+    loadBookings();
+    loadReviewedBookingIds();
+  }, []);
 
   const sortedBookings = useMemo(
     () => [...bookings].sort((a, b) => new Date(b.startTime || 0) - new Date(a.startTime || 0)),
@@ -169,6 +186,11 @@ function BookingList() {
       <PageHeader
         title="📅 Lịch Đặt Sân Của Tôi"
         subtitle="Quản lý và theo dõi các lịch đặt sân đã tạo"
+        actions={
+          <button className="btn btn-secondary" onClick={() => navigate('/my-reviews')}>
+            ⭐ Đánh giá của tôi
+          </button>
+        }
       />
 
       <div className="card" style={{ marginBottom: '12px' }}>
@@ -265,6 +287,7 @@ function BookingList() {
                           <button
                             className="btn btn-sm bookings-review-btn"
                             onClick={(e) => handleOpenReview(e, b)}
+                            disabled={alreadyReviewed}
                             style={{
                               background: alreadyReviewed
                                 ? '#f3f4f6'
@@ -273,7 +296,7 @@ function BookingList() {
                               border: 'none',
                             }}
                           >
-                            {alreadyReviewed ? '✅ Đã đánh giá' : '⭐ Nhận xét/Đánh giá'}
+                            {alreadyReviewed ? 'Đã đánh giá' : '⭐ Nhận xét/Đánh giá'}
                           </button>
                         ) : null}
                       </div>

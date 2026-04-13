@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
 import AdminService from '../../services/AdminService';
 import '../../styles/Layout.css';
@@ -8,6 +9,7 @@ import '../../styles/Layout.css';
  * Hiện hỗ trợ: xem danh sách venues + xóa venue
  */
 function VenueModerate() {
+  const navigate = useNavigate();
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -89,15 +91,15 @@ function VenueModerate() {
           <div className="card-body">Đang tải danh sách venues...</div>
         ) : (
           <div className="table-wrapper">
-            <table className="table">
+            <table className="table" style={{ tableLayout: 'fixed' }}>
               <thead>
                 <tr>
-                  <th>Tên cụm sân</th>
-                  <th>Số sân</th>
-                  <th>Địa chỉ</th>
-                  <th>Giá/giờ</th>
-                  <th>Trạng thái</th>
-                  <th>Hành động</th>
+                  <th style={{ width: '22%', textAlign: 'center' }}>Tên cụm sân</th>
+                  <th style={{ width: '8%', textAlign: 'center' }}>Số sân</th>
+                  <th style={{ width: '38%', textAlign: 'center' }}>Địa chỉ</th>
+                  <th style={{ width: '10%', textAlign: 'center' }}>Giá/giờ</th>
+                  <th style={{ width: '12%', textAlign: 'center' }}>Trạng thái</th>
+                  <th style={{ width: '10%', textAlign: 'center' }}>Hành động</th>
                 </tr>
               </thead>
               <tbody>
@@ -111,16 +113,34 @@ function VenueModerate() {
 
                   return (
                     <tr key={v.id}>
-                      <td style={{ fontWeight: '600' }}>{v.name}</td>
-                      <td>{courtsCount}</td>
-                      <td>📍 {address || '-'}</td>
-                      <td>{(v.pricePerHour || 0).toLocaleString('vi-VN')}đ</td>
-                      <td><span className={`badge ${status.cls}`}>{status.label}</span></td>
-                      <td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/venues/${v.id}`)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            margin: 0,
+                            color: '#1d4ed8',
+                            textDecoration: 'underline',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {v.name}
+                        </button>
+                      </td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>{courtsCount}</td>
+                      <td style={{ verticalAlign: 'middle' }}>📍 {address || '-'}</td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>{(v.pricePerHour || 0).toLocaleString('vi-VN')}đ</td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}><span className={`badge ${status.cls}`}>{status.label}</span></td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                         <button
                           className="btn btn-danger btn-sm"
                           disabled={deletingId === v.id}
                           onClick={() => handleDelete(v.id)}
+                          style={{ minWidth: '84px' }}
                         >
                           {deletingId === v.id ? 'Đang xóa...' : '🗑 Xóa'}
                         </button>

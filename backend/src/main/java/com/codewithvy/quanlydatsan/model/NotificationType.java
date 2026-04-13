@@ -4,6 +4,7 @@ package com.codewithvy.quanlydatsan.model;
  * Enum định nghĩa các loại thông báo trong hệ thống
  */
 public enum NotificationType {
+    BOOKING_CREATED,          // Có người vừa tạo đơn đặt sân mới
     PAYMENT_UPLOADED,         // Người dùng đã upload chứng minh chuyển khoản
     BOOKING_CONFIRMED,        // Chủ sân đã xác nhận booking
     BOOKING_REJECTED,         // Chủ sân đã từ chối booking

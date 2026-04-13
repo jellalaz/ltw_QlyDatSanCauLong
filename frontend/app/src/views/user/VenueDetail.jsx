@@ -14,6 +14,33 @@ const formatReviewDate = (createdAt) => {
     return new Date(ms).toLocaleDateString('vi-VN');
 };
 
+const formatDateOnlySafe = (value) => {
+    if (!value) return '';
+
+    if (Array.isArray(value)) {
+        const [y = 0, m = 1, d = 1, hh = 0, mm = 0, ss = 0] = value.map((n) => Number(n) || 0);
+        if (y > 0) {
+            return new Date(y, Math.max(0, m - 1), d, hh, mm, ss).toLocaleDateString('vi-VN');
+        }
+        return '';
+    }
+
+    if (typeof value === 'object' && !(value instanceof Date)) {
+        const y = Number(value.year ?? 0);
+        const m = Number(value.monthValue ?? value.month ?? 1);
+        const d = Number(value.dayOfMonth ?? value.day ?? 1);
+        const hh = Number(value.hour ?? 0);
+        const mm = Number(value.minute ?? 0);
+        const ss = Number(value.second ?? 0);
+        if (y > 0) {
+            return new Date(y, Math.max(0, m - 1), d, hh, mm, ss).toLocaleDateString('vi-VN');
+        }
+        return '';
+    }
+
+    return formatReviewDate(value);
+};
+
 function VenueDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -74,7 +101,15 @@ function VenueDetail() {
         };
     }, [id]);
 
-    const isVenueOwner = !!(currentUser && venue && currentUser.id === venue.ownerId);
+    const isVenueOwner = !!(
+        currentUser
+        && venue
+        && Number(currentUser.id) > 0
+        && Number(venue.ownerId ?? venue.owner?.id ?? 0) > 0
+        && Number(currentUser.id) === Number(venue.ownerId ?? venue.owner?.id)
+    );
+
+    const hasOwnerReply = (review) => !!String(review?.ownerReply || '').trim();
 
     const handleStartReply = (reviewId) => {
         setReplyingId(reviewId);
@@ -94,7 +129,13 @@ function VenueDetail() {
         try {
             setReplySubmitting(true);
             const updated = await ReviewController.reply(reviewId, replyText);
-            setReviews((prev) => prev.map((r) => (r.id === reviewId ? { ...r, ownerReply: updated.ownerReply } : r)));
+            setReviews((prev) => prev.map((r) => (r.id === reviewId
+                ? {
+                    ...r,
+                    ownerReply: String(updated?.ownerReply || replyText).trim(),
+                    updatedAt: updated?.updatedAt || new Date().toISOString(),
+                }
+                : r)));
             setReplyingId(null);
             setReplyText('');
         } catch (err) {
@@ -235,8 +276,7 @@ function VenueDetail() {
                             {reviews.map((review) => (
                                 <div key={review.id} style={{ padding: '12px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        {/* ✅ Sửa: authorName → userFullname */}
-                                        <strong style={{ fontSize: '14px' }}>{review.userFullname || 'Người dùng'}</strong>
+                                        <strong style={{ fontSize: '14px' }}>{review.authorName || review.userFullname || 'Người dùng'}</strong>
                                         {/* ✅ Sửa: format ngày đúng */}
                                         <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {formatReviewDate(review.createdAt)}
@@ -248,14 +288,17 @@ function VenueDetail() {
                                     </div>
                                     <p style={{ margin: '8px 0 0', fontSize: '14px', color: 'var(--text-primary)' }}>{review.comment}</p>
 
-                                    {review.ownerReply && (
+                                    {hasOwnerReply(review) && (
                                         <div style={{ marginTop: '10px', padding: '10px', background: '#f3f4f6', borderLeft: '3px solid #3b82f6', borderRadius: '6px' }}>
                                             <strong style={{ fontSize: '13px', color: '#1d4ed8' }}>↪ Phản hồi từ chủ sân:</strong>
+                                            <div style={{ marginTop: '3px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                                Ngày phản hồi: {formatDateOnlySafe(review.updatedAt) || formatDateOnlySafe(review.createdAt) || formatDateOnlySafe(new Date())}
+                                            </div>
                                             <p style={{ margin: '4px 0 0', fontSize: '14px' }}>{review.ownerReply}</p>
                                         </div>
                                     )}
 
-                                    {isVenueOwner && !review.ownerReply && replyingId !== review.id && (
+                                    {isVenueOwner && !hasOwnerReply(review) && replyingId !== review.id && (
                                         <button
                                             className="btn btn-primary btn-sm"
                                             style={{ marginTop: '8px' }}

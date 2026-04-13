@@ -220,7 +220,7 @@ function BookingManage() {
     PENDING_PAYMENT: { label: 'Chờ thanh toán', cls: 'badge-default' },
     PAYMENT_UPLOADED: { label: 'Chờ duyệt biên lai', cls: 'badge-warning' },
     CONFIRMED: { label: 'Đã duyệt', cls: 'badge-success' },
-    COMPLETED: { label: 'Hoàn thành', cls: 'badge-success' },
+    COMPLETED: { label: 'Phê duyệt', cls: 'badge-success' },
     REJECTED:  { label: 'Từ chối',   cls: 'badge-danger' },
     CANCELLED: { label: 'Đã hủy', cls: 'badge-default' },
     EXPIRED: { label: 'Hết hạn', cls: 'badge-default' },

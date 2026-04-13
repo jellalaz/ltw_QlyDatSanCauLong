@@ -28,6 +28,7 @@ function Sidebar({ role, user }) {
     { section: 'Cơ Sở Của Tôi' },
     { icon: '🏟️', label: 'Cụm sân của tôi', to: '/owner/venues' },
     { icon: '📅', label: 'Quản lý đặt sân', to: '/owner/bookings' },
+    { icon: '📝', label: 'Quản lý đánh giá', to: '/owner/reviews' },
 
     { section: 'Tài Khoản' },
     { icon: '👤', label: 'Thông tin cá nhân', to: '/owner/profile' },

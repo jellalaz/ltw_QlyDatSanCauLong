@@ -24,4 +24,5 @@ public class NotificationDTO {
     private Boolean isRead;
     private Instant createdAt;  // Đổi từ LocalDateTime sang Instant
     private String senderName; // Tên người gửi (nếu có)
+    private String targetPath;
 }

@@ -3,6 +3,7 @@ package com.codewithvy.quanlydatsan.repository;
 import com.codewithvy.quanlydatsan.model.Notification;
 import com.codewithvy.quanlydatsan.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,5 +23,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     // Đánh dấu tất cả thông báo của user là đã đọc
     @Query("UPDATE Notification n SET n.isRead = true WHERE n.recipient.id = :userId AND n.isRead = false")
     void markAllAsReadForUser(@Param("userId") Long userId);
+
+    @Modifying
+    void deleteByBookingIdIn(List<Long> bookingIds);
+
+    @Modifying
+    void deleteByRecipientIdOrSenderId(Long recipientId, Long senderId);
 }
 

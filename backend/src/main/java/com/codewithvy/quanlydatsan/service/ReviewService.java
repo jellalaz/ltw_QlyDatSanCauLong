@@ -11,8 +11,11 @@ import com.codewithvy.quanlydatsan.repository.ReviewRepository;
 import com.codewithvy.quanlydatsan.repository.UserRepository;
 import com.codewithvy.quanlydatsan.repository.VenuesRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +23,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReviewService.class);
 
     private final ReviewRepository reviewRepository;
     private final BookingRepository bookingRepository;
@@ -81,14 +86,19 @@ public class ReviewService {
         String title = "Đánh giá mới";
         String message = String.format("%s đã đánh giá %d sao cho %s",
                 user.getFullname(), request.getRating(), venue.getName());
-        notificationService.createNotification(
-                venue.getOwner(),    // recipient
-                user,                 // sender
-                booking,             // booking
-                NotificationType.REVIEW_RECEIVED,
-                title,
-                message
-        );
+        try {
+            notificationService.createNotification(
+                    venue.getOwner(),
+                    user,
+                    booking,
+                    NotificationType.REVIEW_RECEIVED,
+                    title,
+                    message
+            );
+        } catch (Exception notifyEx) {
+            // Keep main review flow successful even if notification schema is outdated.
+            log.warn("Skip review-created notification for booking {} due to error: {}", booking.getId(), notifyEx.getMessage());
+        }
 
         return mapToDTO(savedReview);
     }
@@ -116,6 +126,19 @@ public class ReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<Review> reviews = reviewRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        return reviews.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy danh sách review thuộc các venue do owner hiện tại quản lý.
+     */
+    public List<ReviewDTO> getReviewsForOwner(String ownerPhone) {
+        User owner = userRepository.findByPhone(ownerPhone)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Review> reviews = reviewRepository.findByVenuesOwnerIdOrderByCreatedAtDesc(owner.getId());
         return reviews.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -161,6 +184,27 @@ public class ReviewService {
     }
 
     /**
+     * Cập nhật review của user (chỉ review của chính mình).
+     */
+    @Transactional
+    public ReviewDTO updateReview(Long reviewId, ReviewRequest request, String userPhone) {
+        User user = userRepository.findByPhone(userPhone)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
+
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("You can only update your own reviews");
+        }
+
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
+
+        return mapToDTO(reviewRepository.save(review));
+    }
+
+    /**
      * Chủ sân phản hồi review. Chỉ owner của venue mới được phản hồi.
      */
     @Transactional
@@ -176,6 +220,10 @@ public class ReviewService {
             throw new IllegalArgumentException("You can only reply to reviews of your own venues");
         }
 
+        if (StringUtils.hasText(review.getOwnerReply())) {
+            throw new IllegalArgumentException("Bạn chỉ có thể phản hồi đánh giá một lần");
+        }
+
         review.setOwnerReply(request.getReply());
         Review saved = reviewRepository.save(review);
 
@@ -183,14 +231,19 @@ public class ReviewService {
         String title = "Chủ sân đã phản hồi đánh giá";
         String message = String.format("%s đã phản hồi đánh giá của bạn tại %s.",
                 owner.getFullname(), review.getVenues().getName());
-        notificationService.createNotification(
-                review.getUser(),
-                owner,
-                review.getBooking(),
-                NotificationType.REVIEW_REPLIED,
-                title,
-                message
-        );
+        try {
+            notificationService.createNotification(
+                    review.getUser(),
+                    owner,
+                    review.getBooking(),
+                    NotificationType.REVIEW_REPLIED,
+                    title,
+                    message
+            );
+        } catch (Exception notifyEx) {
+            // Do not rollback owner reply when notification cannot be inserted.
+            log.warn("Skip review-replied notification for review {} due to error: {}", review.getId(), notifyEx.getMessage());
+        }
 
         return mapToDTO(saved);
     }

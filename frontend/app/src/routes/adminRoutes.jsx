@@ -5,6 +5,7 @@ import MainLayout from '../components/layout/MainLayout';
 // Admin Views
 import AdminDashboard from '../views/admin/AdminDashboard';
 import UserManage from '../views/admin/UserManage';
+import GrantOwnerRole from '../views/admin/GrantOwnerRole';
 import VenueModerate from '../views/admin/VenueModerate';
 import Profile from '../views/Profile';
 
@@ -24,6 +25,7 @@ const adminRoutes = [
   >
     <Route index element={<AdminDashboard />} />
     <Route path="users" element={<UserManage />} />
+    <Route path="users/:id/grant-owner" element={<GrantOwnerRole />} />
     <Route path="venues" element={<VenueModerate />} />
     <Route path="profile" element={<Profile />} />
   </Route>,

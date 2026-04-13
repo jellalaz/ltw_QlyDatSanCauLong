@@ -1,7 +1,9 @@
 package com.codewithvy.quanlydatsan.controller;
 
 import com.codewithvy.quanlydatsan.dto.AdminDashboardStatsDTO;
+import com.codewithvy.quanlydatsan.dto.AdminCreateUserRequest;
 import com.codewithvy.quanlydatsan.dto.AdminRoleUpdateRequest;
+import com.codewithvy.quanlydatsan.dto.AdminUpdateUserRequest;
 import com.codewithvy.quanlydatsan.dto.ApiResponse;
 import com.codewithvy.quanlydatsan.dto.BookingResponse;
 import com.codewithvy.quanlydatsan.dto.UserDTO;
@@ -21,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,17 +54,43 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers() {
-        List<UserDTO> users = userService.getAllUsers().stream()
+        List<UserDTO> users = userService.getManageableUsers().stream()
                 .map(UserDTO::fromEntity)
                 .toList();
         return ResponseEntity.ok(ApiResponse.ok(users, "Lấy danh sách người dùng thành công"));
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<ApiResponse<UserDTO>> createUser(@Valid @RequestBody AdminCreateUserRequest request) {
+        User user = userService.createUserByAdmin(request);
+        return ResponseEntity.ok(ApiResponse.ok(UserDTO.fromEntity(user), "Tạo người dùng thành công"));
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminUpdateUserRequest request) {
+        User user = userService.updateUserByAdmin(id, request);
+        return ResponseEntity.ok(ApiResponse.ok(UserDTO.fromEntity(user), "Cập nhật người dùng thành công"));
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+        userService.deleteUserByAdmin(id);
+        return ResponseEntity.ok(ApiResponse.ok(null, "Xóa người dùng thành công"));
     }
 
     @PutMapping("/users/{id}/roles")
     public ResponseEntity<ApiResponse<UserDTO>> updateUserRoles(
             @PathVariable Long id,
             @Valid @RequestBody AdminRoleUpdateRequest request) {
-        User user = userService.updateUserRoles(id, request.getRoles());
+        User user = userService.updateUserRoles(
+                id,
+                request.getRoles(),
+                request.getBankName(),
+                request.getBankAccountNumber(),
+                request.getBankAccountName()
+        );
         return ResponseEntity.ok(ApiResponse.ok(UserDTO.fromEntity(user), "Cập nhật quyền người dùng thành công"));
     }
 

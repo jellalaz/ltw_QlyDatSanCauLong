@@ -55,7 +55,7 @@ const statusMap = {
   PENDING_PAYMENT: { label: 'Chờ thanh toán', cls: 'badge-warning' },
   PAYMENT_UPLOADED: { label: 'Chờ chủ sân duyệt', cls: 'badge-info' },
   CONFIRMED: { label: 'Đã xác nhận', cls: 'badge-success' },
-  COMPLETED: { label: 'Hoàn thành', cls: 'badge-success' },
+  COMPLETED: { label: 'Phê duyệt', cls: 'badge-success' },
   CANCELLED: { label: 'Đã hủy', cls: 'badge-danger' },
   REJECTED: { label: 'Từ chối', cls: 'badge-danger' },
   EXPIRED: { label: 'Hết hạn', cls: 'badge-default' },

@@ -17,6 +17,7 @@ function Home() {
   const userCards = [
     { icon: '🏟️', title: 'Tìm Sân', desc: 'Tìm kiếm và xem danh sách sân cầu lông gần bạn', path: '/venues', color: '#4f46e5' },
     { icon: '📅', title: 'Lịch Đặt Sân', desc: 'Xem và quản lý các lịch đặt sân của bạn', path: '/bookings', color: '#0ea5e9' },
+    { icon: '⭐', title: 'Đánh Giá Của Tôi', desc: 'Xem lại các nhận xét và số sao bạn đã gửi', path: '/my-reviews', color: '#f97316' },
     { icon: '🔔', title: 'Thông Báo', desc: 'Xem các thông báo và lời nhắc mới nhất', path: '/notifications', color: '#f59e0b' },
     { icon: '👤', title: 'Thông Tin Cá Nhân', desc: 'Xem và cập nhật thông tin tài khoản', path: '/profile', color: '#10b981' },
   ];
@@ -25,6 +26,7 @@ function Home() {
     { icon: '📊', title: 'Dashboard', desc: 'Tổng quan hoạt động cơ sở của bạn', path: '/owner', color: '#4f46e5' },
     { icon: '🏟️', title: 'Cụm Sân Của Tôi', desc: 'Quản lý các cụm sân bạn sở hữu', path: '/owner/venues', color: '#0ea5e9' },
     { icon: '📋', title: 'Đơn Đặt Sân', desc: 'Duyệt và quản lý đơn đặt từ khách', path: '/owner/bookings', color: '#f59e0b' },
+    { icon: '📝', title: 'Quản Lý Đánh Giá', desc: 'Xem và phản hồi đánh giá của khách thuê sân', path: '/owner/reviews', color: '#8b5cf6' },
   ];
 
   const adminCards = [

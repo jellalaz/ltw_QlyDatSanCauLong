@@ -16,6 +16,14 @@ class ReviewService {
     return axios.get(`${API_BASE_URL}/bookings/${bookingId}/review`);
   }
 
+  static getMyReviews() {
+    return axios.get(`${API_BASE_URL}/my-reviews`);
+  }
+
+  static getOwnerReviews() {
+    return axios.get(`${API_BASE_URL}/owner/reviews`);
+  }
+
   static update(reviewId, reviewData) {
     return axios.put(`${API_BASE_URL}/reviews/${reviewId}`, reviewData);
   }

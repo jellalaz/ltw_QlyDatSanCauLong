@@ -99,6 +99,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private NotificationDTO convertToDTO(Notification notification) {
+        String targetPath = buildTargetPath(notification);
         return NotificationDTO.builder()
                 .id(notification.getId())
                 .bookingId(notification.getBooking().getId())
@@ -108,7 +109,20 @@ public class NotificationServiceImpl implements NotificationService {
                 .isRead(notification.getIsRead())
                 .createdAt(notification.getCreatedAt())
                 .senderName(notification.getSender() != null ? notification.getSender().getFullname() : "Hệ thống")
+                .targetPath(targetPath)
                 .build();
+    }
+
+    private String buildTargetPath(Notification notification) {
+        Long bookingId = notification.getBooking() != null ? notification.getBooking().getId() : null;
+
+        return switch (notification.getType()) {
+            case BOOKING_CREATED, PAYMENT_UPLOADED -> "/owner/bookings";
+            case REVIEW_RECEIVED -> "/owner/reviews";
+            case REVIEW_REPLIED -> "/my-reviews";
+            case BOOKING_CONFIRMED, BOOKING_REJECTED, BOOKING_EXPIRED, BOOKING_CANCELLED ->
+                    bookingId != null ? "/bookings/" + bookingId + "/payment" : "/bookings";
+        };
     }
 
     private User getCurrentUser() {

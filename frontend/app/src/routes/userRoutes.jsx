@@ -7,6 +7,7 @@ import BookingList from '../views/user/BookingList';
 import BookingCreate from '../views/user/BookingCreate';
 import BookingPayment from '../views/user/BookingPayment';
 import Notifications from '../views/user/Notifications';
+import MyReviews from '../views/user/MyReviews';
 import Profile from '../views/Profile';
 
 /**
@@ -27,6 +28,7 @@ const userRoutes = [
     <Route path="/bookings/new" element={<BookingCreate />} />
     <Route path="/bookings/:id/payment" element={<BookingPayment />} />
     <Route path="/notifications" element={<Notifications />} />
+    <Route path="/my-reviews" element={<MyReviews />} />
   </Route>,
 ];
 

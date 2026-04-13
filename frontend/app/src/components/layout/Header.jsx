@@ -11,8 +11,12 @@ import '../../../src/styles/Layout.css';
 function Header({ user, onLogout }) {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [notificationItems, setNotificationItems] = useState([]);
+  const [notificationLoading, setNotificationLoading] = useState(false);
   const dropdownRef = useRef(null);
+  const notificationRef = useRef(null);
 
   const isAuthenticated = Boolean(user) || AuthController.isAuthenticated();
 
@@ -48,10 +52,77 @@ function Header({ user, onLogout }) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false);
       }
+      if (notificationRef.current && !notificationRef.current.contains(e.target)) {
+        setNotificationOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const loadNotificationPreview = useCallback(async () => {
+    if (!isAuthenticated) {
+      setNotificationItems([]);
+      return;
+    }
+    try {
+      setNotificationLoading(true);
+      const res = await NotificationService.getAll();
+      const data = res?.data?.data || res?.data || [];
+      const list = Array.isArray(data) ? data.slice(0, 6) : [];
+      setNotificationItems(list);
+    } catch {
+      setNotificationItems([]);
+    } finally {
+      setNotificationLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  const resolveNotificationTarget = (item) => {
+    if (item?.targetPath) return item.targetPath;
+    if (item?.bookingId) return `/bookings/${item.bookingId}/payment`;
+    return '/notifications';
+  };
+
+  const handleOpenNotification = async () => {
+    const nextOpen = !notificationOpen;
+    setNotificationOpen(nextOpen);
+    setDropdownOpen(false);
+    if (nextOpen) {
+      await loadNotificationPreview();
+    }
+  };
+
+  const handleNotificationClick = async (item) => {
+    try {
+      if (!item?.isRead) {
+        await NotificationService.markAsRead(item.id);
+      }
+    } catch {
+      // Keep navigation flow even if mark-as-read fails.
+    }
+
+    setNotificationItems((prev) => prev.map((n) => (n.id === item.id ? { ...n, isRead: true } : n)));
+    window.dispatchEvent(new Event('notifications:updated'));
+    setNotificationOpen(false);
+    navigate(resolveNotificationTarget(item));
+  };
+
+  const handleGoToAllNotifications = () => {
+    setNotificationOpen(false);
+    navigate('/notifications');
+  };
+
+  const handleMarkAllNotifications = async () => {
+    try {
+      await NotificationService.markAllAsRead();
+      setNotificationItems((prev) => prev.map((item) => ({ ...item, isRead: true })));
+      setUnreadCount(0);
+      window.dispatchEvent(new Event('notifications:updated'));
+    } catch {
+      // Keep dropdown usable even if mark-all fails.
+    }
+  };
 
   const handleLogout = () => {
     AuthController.logout();
@@ -98,6 +169,14 @@ function Header({ user, onLogout }) {
           >
             📅 Lịch Đặt Sân
           </NavLink>
+          <NavLink
+            to="/my-reviews"
+            className={({ isActive }) =>
+              `header-nav-item ${isActive ? 'active' : ''}`
+            }
+          >
+            ⭐ Đánh giá của tôi
+          </NavLink>
 
           {/* Hiển thị link Owner nếu là OWNER */}
           {isOwner && (
@@ -129,10 +208,12 @@ function Header({ user, onLogout }) {
           {isAuthenticated ? (
             <>
               {/* Notification Bell */}
-              <NavLink to="/notifications">
+              <div className="dropdown-wrapper" ref={notificationRef}>
                 <button
+                  type="button"
                   className={`header-icon-btn notification-btn ${hasUnread ? 'has-unread' : ''}`}
                   title={hasUnread ? `${unreadCount} thông báo chưa đọc` : 'Không có thông báo mới'}
+                  onClick={handleOpenNotification}
                 >
                   <span className={`notification-bell ${hasUnread ? 'ring' : ''}`}>🔔</span>
                   {hasUnread && (
@@ -141,7 +222,69 @@ function Header({ user, onLogout }) {
                     </span>
                   )}
                 </button>
-              </NavLink>
+
+                {notificationOpen && (
+                  <div className="dropdown-menu" style={{ minWidth: '320px', maxWidth: '360px' }}>
+                    <div className="dropdown-item" style={{ justifyContent: 'space-between', cursor: 'default', fontWeight: 700 }}>
+                      <span>Thông báo mới</span>
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>{unreadCount} chưa đọc</span>
+                    </div>
+                    <div className="dropdown-divider" />
+
+                    {notificationLoading && (
+                      <div className="dropdown-item" style={{ cursor: 'default', color: '#64748b' }}>Đang tải...</div>
+                    )}
+
+                    {!notificationLoading && notificationItems.length === 0 && (
+                      <div className="dropdown-item" style={{ cursor: 'default', color: '#64748b' }}>Chưa có thông báo nào</div>
+                    )}
+
+                    {!notificationLoading && notificationItems.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className="dropdown-item"
+                        onClick={() => handleNotificationClick(item)}
+                        style={{
+                          width: '100%',
+                          border: 'none',
+                          textAlign: 'left',
+                          background: item.isRead ? 'transparent' : '#eef2ff',
+                          alignItems: 'flex-start',
+                          flexDirection: 'column',
+                        }}
+                      >
+                        <span style={{ fontWeight: item.isRead ? 600 : 700 }}>{item.title}</span>
+                        <span style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{item.message}</span>
+                      </button>
+                    ))}
+
+                    <div className="dropdown-divider" />
+
+                    {hasUnread && (
+                      <button
+                        type="button"
+                        className="dropdown-item"
+                        onClick={handleMarkAllNotifications}
+                        style={{ width: '100%', border: 'none', textAlign: 'left', justifyContent: 'center', fontWeight: 600 }}
+                      >
+                        ✓ Đánh dấu tất cả đã đọc
+                      </button>
+                    )}
+
+                    {hasUnread && <div className="dropdown-divider" />}
+
+                    <button
+                      type="button"
+                      className="dropdown-item"
+                      onClick={handleGoToAllNotifications}
+                      style={{ width: '100%', border: 'none', textAlign: 'left', justifyContent: 'center', fontWeight: 600 }}
+                    >
+                      Xem trang thông báo
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Avatar Dropdown */}
               <div className="dropdown-wrapper" ref={dropdownRef}>
@@ -173,6 +316,13 @@ function Header({ user, onLogout }) {
                       onClick={() => setDropdownOpen(false)}
                     >
                       🔔 Thông báo
+                    </NavLink>
+                    <NavLink
+                      to="/my-reviews"
+                      className="dropdown-item"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      ⭐ Đánh giá của tôi
                     </NavLink>
                     {isOwner && (
                       <NavLink

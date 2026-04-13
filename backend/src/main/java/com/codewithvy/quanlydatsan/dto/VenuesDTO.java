@@ -35,5 +35,6 @@ public class VenuesDTO {
     private java.util.List<String> images;
 
     // Thông tin chủ sân
+    private Long ownerId; // ID chủ sân
     private String ownerPhoneNumber; // Số điện thoại chủ sân
 }

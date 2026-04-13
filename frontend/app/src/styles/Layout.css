@@ -990,6 +990,10 @@
   transition: all 0.12s ease;
 }
 
+.booking-slot-tooltip-anchor {
+  display: inline-flex;
+}
+
 .booking-slot-btn:hover:not(:disabled) {
   border-color: #4f46e5;
   background: #eef2ff;
@@ -1000,12 +1004,29 @@
   border-color: #4f46e5;
 }
 
+.booking-slot-btn.locked {
+  cursor: not-allowed;
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
 .booking-slot-btn.booked,
 .booking-slot-btn.inactive,
 .booking-slot-btn:disabled {
   cursor: not-allowed;
   background: #e5e7eb;
   border-color: #d1d5db;
+}
+
+.booking-slot-btn.booked {
+  background: #ef4444 !important;
+  border-color: #dc2626 !important;
+}
+
+.booking-slot-btn.inactive,
+.booking-slot-btn.past {
+  background: #fecaca !important;
+  border-color: #ef4444 !important;
 }
 
 /* Booking list table layout */

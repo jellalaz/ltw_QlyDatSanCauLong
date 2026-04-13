@@ -22,6 +22,18 @@ class ReviewController {
     return Review.fromAPI(res.data.data || res.data);
   }
 
+  static async getMyReviews() {
+    const res = await ReviewService.getMyReviews();
+    const data = res.data.data || res.data;
+    return Array.isArray(data) ? data.map(Review.fromAPI) : [];
+  }
+
+  static async getOwnerReviews() {
+    const res = await ReviewService.getOwnerReviews();
+    const data = res.data.data || res.data;
+    return Array.isArray(data) ? data.map(Review.fromAPI) : [];
+  }
+
   static async update(reviewId, reviewData) {
     const res = await ReviewService.update(reviewId, reviewData);
     return Review.fromAPI(res.data.data || res.data);

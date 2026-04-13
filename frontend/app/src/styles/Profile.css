@@ -146,9 +146,11 @@
 }
 
 .form-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: 30px;
+  align-items: stretch;
 }
 
 .profile-container .btn-primary,
@@ -161,6 +163,19 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+.form-actions .btn-primary,
+.form-actions .btn-secondary {
+  width: 100% !important;
+  max-width: 100%;
+  min-width: 0;
+  height: 48px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
 }
 
 .profile-container .btn-primary {
@@ -182,7 +197,7 @@
 .profile-container .btn-secondary {
   background-color: #f0f0f0;
   color: #333;
-  border: 2px solid #e0e0e0;
+  border: 1px solid #d5dbe6;
 }
 
 .profile-container .btn-secondary:hover {

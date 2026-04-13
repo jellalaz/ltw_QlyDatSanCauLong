@@ -87,6 +87,25 @@ public class ReviewController {
     }
 
     /**
+     * Lấy tất cả review thuộc các venue của owner hiện tại.
+     */
+    @GetMapping("/owner/reviews")
+    @PreAuthorize("hasRole('OWNER')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Lấy review của chủ sân",
+               description = "OWNER xem tất cả đánh giá tại các venue thuộc sở hữu")
+    public ResponseEntity<ApiResponse<List<ReviewDTO>>> getOwnerReviews(Authentication authentication) {
+        String ownerPhone = authentication.getName();
+        List<ReviewDTO> reviews = reviewService.getReviewsForOwner(ownerPhone);
+
+        return ResponseEntity.ok(ApiResponse.<List<ReviewDTO>>builder()
+                .success(true)
+                .message("Owner reviews retrieved successfully")
+                .data(reviews)
+                .build());
+    }
+
+    /**
      * Lấy review của một booking cụ thể.
      */
     @GetMapping("/bookings/{bookingId}/review")
@@ -127,6 +146,29 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.<ReviewDTO>builder()
                 .success(true)
                 .message("Reply sent successfully")
+                .data(review)
+                .build());
+    }
+
+    /**
+     * Cập nhật review của user.
+     */
+    @PutMapping("/reviews/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Cập nhật review",
+               description = "USER cập nhật review của chính mình")
+    public ResponseEntity<ApiResponse<ReviewDTO>> updateReview(
+            @PathVariable Long reviewId,
+            @Valid @RequestBody ReviewRequest request,
+            Authentication authentication) {
+
+        String userPhone = authentication.getName();
+        ReviewDTO review = reviewService.updateReview(reviewId, request, userPhone);
+
+        return ResponseEntity.ok(ApiResponse.<ReviewDTO>builder()
+                .success(true)
+                .message("Review updated successfully")
                 .data(review)
                 .build());
     }

@@ -4,6 +4,7 @@ import com.codewithvy.quanlydatsan.model.BookingItem;
 import com.codewithvy.quanlydatsan.model.Court;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +18,9 @@ public interface BookingItemRepository extends JpaRepository<BookingItem, Long> 
      * Tìm tất cả booking items của một booking
      */
     List<BookingItem> findByBookingId(Long bookingId);
+
+    @Modifying
+    void deleteByBookingIdIn(List<Long> bookingIds);
 
     /**
      * Kiểm tra xem một sân có bị trùng lịch trong khoảng thời gian không

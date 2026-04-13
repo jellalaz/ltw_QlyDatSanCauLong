@@ -28,7 +28,7 @@ class Booking {
       PAYMENT_UPLOADED: 'Chờ chủ sân duyệt',
       CONFIRMED: 'Đã xác nhận',
       REJECTED: 'Từ chối',
-      COMPLETED: 'Hoàn thành',
+      COMPLETED: 'Phê duyệt',
       CANCELLED: 'Đã hủy',
       EXPIRED: 'Hết hạn',
     };

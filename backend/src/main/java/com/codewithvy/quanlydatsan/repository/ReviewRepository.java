@@ -2,6 +2,7 @@ package com.codewithvy.quanlydatsan.repository;
 
 import com.codewithvy.quanlydatsan.model.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -23,6 +24,15 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // Lấy tất cả review của một user
     List<Review> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    // Lấy tất cả review thuộc các venue của owner
+    List<Review> findByVenuesOwnerIdOrderByCreatedAtDesc(Long ownerId);
+
+    @Modifying
+    void deleteByBookingIdIn(List<Long> bookingIds);
+
+    @Modifying
+    void deleteByUserId(Long userId);
 
     // Tính rating trung bình của một venue
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.venues.id = :venueId")

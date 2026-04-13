@@ -30,14 +30,14 @@ public class BookingController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<ApiResponse<BookingResponse>> createBooking(@Valid @RequestBody BookingRequest bookingRequest) {
         BookingResponse bookingResponse = bookingService.createBooking(bookingRequest);
         return ResponseEntity.ok(ApiResponse.ok(bookingResponse, "Đặt sân thành công. Vui lòng chuyển khoản trong 5 phút."));
     }
 
     @PutMapping("/{id}/confirm-payment")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<ApiResponse<BookingResponse>> confirmPayment(
             @PathVariable Long id,
             @Valid @RequestBody PaymentProofRequest request) {
@@ -94,7 +94,7 @@ public class BookingController {
     }
 
     @GetMapping("/my-bookings")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<ApiResponse<List<BookingResponse>>> getMyBookings() {
         List<BookingResponse> bookings = bookingService.getMyBookings();
         return ResponseEntity.ok(ApiResponse.ok(bookings, "My bookings retrieved successfully"));
@@ -108,14 +108,14 @@ public class BookingController {
     }
 
     @PutMapping("/{id}/cancel")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<ApiResponse<BookingResponse>> cancelBooking(@PathVariable Long id) {
         BookingResponse bookingResponse = bookingService.cancelBooking(id);
         return ResponseEntity.ok(ApiResponse.ok(bookingResponse, "Booking cancelled successfully"));
     }
 
     @PostMapping("/{id}/upload-payment-proof")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(
         summary = "Upload ảnh chứng minh chuyển khoản",
         description = "Upload ảnh chụp màn hình đã chuyển khoản. Chỉ chấp nhận file ảnh jpg, jpeg, png (max 10MB)"

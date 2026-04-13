@@ -11,8 +11,25 @@ class AdminService {
     return axios.get(`${API_BASE_URL}/admin/users`);
   }
 
-  static updateUserRoles(userId, roles) {
-    return axios.put(`${API_BASE_URL}/admin/users/${userId}/roles`, { roles });
+  static createUser(payload) {
+    return axios.post(`${API_BASE_URL}/admin/users`, payload);
+  }
+
+  static updateUser(userId, payload) {
+    return axios.put(`${API_BASE_URL}/admin/users/${userId}`, payload);
+  }
+
+  static deleteUser(userId) {
+    return axios.delete(`${API_BASE_URL}/admin/users/${userId}`);
+  }
+
+  static updateUserRoles(userId, roles, bankInfo = null) {
+    return axios.put(`${API_BASE_URL}/admin/users/${userId}/roles`, {
+      roles,
+      bankName: bankInfo?.bankName,
+      bankAccountNumber: bankInfo?.bankAccountNumber,
+      bankAccountName: bankInfo?.bankAccountName,
+    });
   }
 
   static getAllBookings() {
