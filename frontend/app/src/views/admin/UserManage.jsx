@@ -4,13 +4,14 @@ import PageHeader from '../../components/common/PageHeader';
 import AdminService from '../../services/AdminService';
 import '../../styles/Layout.css';
 
+const SYSTEM_ADMIN_PHONES = ['09000000', '0900000000'];
+
 /**
  * UserManage - Quản lý người dùng toàn hệ thống (ADMIN)
  * Dùng API admin/users + admin/users/{id}/roles
  */
 function UserManage() {
   const navigate = useNavigate();
-  const SYSTEM_ADMIN_PHONES = ['09000000', '0900000000'];
   const [search, setSearch] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);

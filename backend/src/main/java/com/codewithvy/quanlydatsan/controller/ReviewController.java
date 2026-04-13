@@ -31,7 +31,7 @@ public class ReviewController {
      * Chỉ USER mới có thể tạo review.
      */
     @PostMapping("/bookings/{bookingId}/review")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','OWNER','ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Tạo review cho booking đã hoàn thành",
                description = "USER tạo đánh giá cho booking của mình sau khi hoàn thành")
@@ -71,7 +71,7 @@ public class ReviewController {
      * Lấy tất cả review của user hiện tại.
      */
     @GetMapping("/my-reviews")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','OWNER','ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Lấy tất cả review của user",
                description = "USER xem lại các đánh giá đã tạo")
@@ -109,7 +109,7 @@ public class ReviewController {
      * Lấy review của một booking cụ thể.
      */
     @GetMapping("/bookings/{bookingId}/review")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','OWNER','ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Lấy review của một booking",
                description = "USER xem review của booking cụ thể")
@@ -154,7 +154,7 @@ public class ReviewController {
      * Cập nhật review của user.
      */
     @PutMapping("/reviews/{reviewId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','OWNER','ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Cập nhật review",
                description = "USER cập nhật review của chính mình")
@@ -177,7 +177,7 @@ public class ReviewController {
      * Xóa review của user.
      */
     @DeleteMapping("/reviews/{reviewId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','OWNER','ADMIN')")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Xóa review",
                description = "USER xóa review của chính mình")

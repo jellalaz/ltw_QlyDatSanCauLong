@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import UserController from '../controllers/UserController';
 import AuthService from '../services/AuthService';
 import '../styles/Profile.css';
@@ -9,7 +8,6 @@ import '../styles/Layout.css';
  * Profile View - Trang xem và chỉnh sửa thông tin cá nhân
  */
 function Profile() {
-  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);

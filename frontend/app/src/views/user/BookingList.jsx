@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
 import BookingController from '../../controllers/BookingController';
 import ReviewController from '../../controllers/ReviewController';
-import ReviewModal from '../../components/ReviewModal'; // ✅ THÊM
+import ReviewModal from '../../components/ReviewModal';
 import '../../styles/Layout.css';
 
 const extractCourtNumber = (item) => {
@@ -86,7 +86,6 @@ function BookingList() {
   const [workingId, setWorkingId] = useState(null);
   const [filterMode, setFilterMode] = useState('all');
   const [selectedDate, setSelectedDate] = useState('');
-  // ✅ THÊM: state cho review
   const [reviewTarget, setReviewTarget] = useState(null);
   const [reviewedIds, setReviewedIds] = useState(new Set());
 
@@ -169,7 +168,6 @@ function BookingList() {
     }
   };
 
-  // ✅ THÊM: mở modal review
   const handleOpenReview = (e, b) => {
     e.stopPropagation();
     const startRaw = getBookingStartTime(b);
@@ -246,7 +244,6 @@ function BookingList() {
                 const s = statusMap[b.status] || { label: b.status, cls: 'badge-default' };
                 const canCancel = b.status === 'PENDING_PAYMENT' || b.status === 'PAYMENT_UPLOADED';
                 const canPay    = b.status === 'PENDING_PAYMENT';
-                // ✅ THÊM: điều kiện đánh giá
                 const canReview      = b.status === 'CONFIRMED' || b.status === 'COMPLETED';
                 const alreadyReviewed = reviewedIds.has(b.id);
                 const hasPaymentActions = canCancel || canPay;
@@ -282,7 +279,6 @@ function BookingList() {
                             Thanh toán
                           </button>
                         )}
-                        {/* ✅ THAY: nút placeholder cũ → nút review có điều kiện */}
                         {canReview ? (
                           <button
                             className="btn btn-sm bookings-review-btn"
@@ -309,7 +305,6 @@ function BookingList() {
         </div>
       </div>
 
-      {/* ✅ THÊM: modal đánh giá */}
       {reviewTarget && (
         <ReviewModal
           booking={reviewTarget}
