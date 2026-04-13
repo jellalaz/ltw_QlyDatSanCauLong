@@ -28,11 +28,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // Lấy tất cả review thuộc các venue của owner
     List<Review> findByVenuesOwnerIdOrderByCreatedAtDesc(Long ownerId);
 
-    @Modifying
-    void deleteByBookingIdIn(List<Long> bookingIds);
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM Review r WHERE r.booking.id IN :bookingIds")
+    int deleteAllByBookingIds(@Param("bookingIds") List<Long> bookingIds);
 
-    @Modifying
-    void deleteByUserId(Long userId);
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM Review r WHERE r.user.id = :userId")
+    int deleteAllByUserId(@Param("userId") Long userId);
 
     // Tính rating trung bình của một venue
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.venues.id = :venueId")

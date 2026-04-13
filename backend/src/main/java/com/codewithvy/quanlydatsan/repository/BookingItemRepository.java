@@ -19,8 +19,9 @@ public interface BookingItemRepository extends JpaRepository<BookingItem, Long> 
      */
     List<BookingItem> findByBookingId(Long bookingId);
 
-    @Modifying
-    void deleteByBookingIdIn(List<Long> bookingIds);
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM BookingItem bi WHERE bi.booking.id IN :bookingIds")
+    int deleteAllByBookingIds(@Param("bookingIds") List<Long> bookingIds);
 
     /**
      * Kiểm tra xem một sân có bị trùng lịch trong khoảng thời gian không

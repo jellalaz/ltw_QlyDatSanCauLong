@@ -241,8 +241,8 @@ public class UserService {
             venuesRepository.deleteAll(ownerVenues);
         }
 
-        reviewRepository.deleteByUserId(userId);
-        notificationRepository.deleteByRecipientIdOrSenderId(userId, userId);
+        reviewRepository.deleteAllByUserId(userId);
+        notificationRepository.deleteAllByRecipientIdOrSenderId(userId, userId);
         passwordResetTokenRepository.deleteByUserId(userId);
 
         userRepository.delete(user);
@@ -304,9 +304,9 @@ public class UserService {
             return;
         }
 
-        reviewRepository.deleteByBookingIdIn(ids);
-        notificationRepository.deleteByBookingIdIn(ids);
-        bookingItemRepository.deleteByBookingIdIn(ids);
+        reviewRepository.deleteAllByBookingIds(ids);
+        notificationRepository.deleteAllByBookingIds(ids);
+        bookingItemRepository.deleteAllByBookingIds(ids);
         bookingRepository.deleteAllByIdInBatch(ids);
     }
 
