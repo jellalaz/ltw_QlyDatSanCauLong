@@ -23,6 +23,10 @@ class ReviewService {
   static delete(reviewId) {
     return axios.delete(`${API_BASE_URL}/reviews/${reviewId}`);
   }
+
+  static reply(reviewId, replyText) {
+    return axios.put(`${API_BASE_URL}/reviews/${reviewId}/reply`, { reply: replyText });
+  }
 }
 
 export default ReviewService;

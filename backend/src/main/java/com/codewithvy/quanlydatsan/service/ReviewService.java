@@ -1,6 +1,7 @@
 package com.codewithvy.quanlydatsan.service;
 
 import com.codewithvy.quanlydatsan.dto.ReviewDTO;
+import com.codewithvy.quanlydatsan.dto.ReviewReplyRequest;
 import com.codewithvy.quanlydatsan.dto.ReviewRequest;
 import com.codewithvy.quanlydatsan.model.*;
 import com.codewithvy.quanlydatsan.exception.ResourceNotFoundException;
@@ -160,6 +161,41 @@ public class ReviewService {
     }
 
     /**
+     * Chủ sân phản hồi review. Chỉ owner của venue mới được phản hồi.
+     */
+    @Transactional
+    public ReviewDTO replyToReview(Long reviewId, ReviewReplyRequest request, String ownerPhone) {
+        User owner = userRepository.findByPhone(ownerPhone)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
+
+        // Chỉ chủ sân của venue mới được phản hồi
+        if (!review.getVenues().getOwner().getId().equals(owner.getId())) {
+            throw new IllegalArgumentException("You can only reply to reviews of your own venues");
+        }
+
+        review.setOwnerReply(request.getReply());
+        Review saved = reviewRepository.save(review);
+
+        // Gửi thông báo cho người đã review
+        String title = "Chủ sân đã phản hồi đánh giá";
+        String message = String.format("%s đã phản hồi đánh giá của bạn tại %s.",
+                owner.getFullname(), review.getVenues().getName());
+        notificationService.createNotification(
+                review.getUser(),
+                owner,
+                review.getBooking(),
+                NotificationType.REVIEW_REPLIED,
+                title,
+                message
+        );
+
+        return mapToDTO(saved);
+    }
+
+    /**
      * Map Review entity sang ReviewDTO.
      */
     private ReviewDTO mapToDTO(Review review) {
@@ -172,6 +208,7 @@ public class ReviewService {
                 .bookingId(review.getBooking().getId())
                 .rating(review.getRating())
                 .comment(review.getComment())
+                .ownerReply(review.getOwnerReply())
                 .createdAt(review.getCreatedAt())
                 .updatedAt(review.getUpdatedAt())
                 .build();

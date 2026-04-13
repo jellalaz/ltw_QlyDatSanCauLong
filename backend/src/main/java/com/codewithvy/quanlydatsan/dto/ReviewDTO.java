@@ -32,6 +32,8 @@ public class ReviewDTO {
 
     private String comment;
 
+    private String ownerReply;
+
     private Instant createdAt;
 
     private Instant updatedAt;

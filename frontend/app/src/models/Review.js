@@ -2,7 +2,7 @@
  * Review Model - Đại diện cho 1 đánh giá sân
  */
 class Review {
-  constructor(id, userId, venueId, rating, comment, authorName, createdAt) {
+  constructor(id, userId, venueId, rating, comment, authorName, createdAt, ownerReply) {
     this.id = id;
     this.userId = userId;
     this.venueId = venueId;
@@ -10,6 +10,7 @@ class Review {
     this.comment = comment;
     this.authorName = authorName;
     this.createdAt = createdAt;
+    this.ownerReply = ownerReply;
   }
 
   static fromAPI(data) {
@@ -23,7 +24,8 @@ class Review {
       data.rating,
       data.comment,
       authorName,
-      createdAt
+      createdAt,
+      data.ownerReply ?? null
     );
   }
 }

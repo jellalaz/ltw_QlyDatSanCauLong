@@ -45,6 +45,10 @@ public class Review extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
+    // Phản hồi của chủ sân cho review
+    @Column(name = "owner_reply", columnDefinition = "TEXT")
+    private String ownerReply;
+
     // Ràng buộc: rating phải từ 1-5
     @PrePersist
     @PreUpdate

@@ -30,6 +30,14 @@ class ReviewController {
   static async delete(reviewId) {
     await ReviewService.delete(reviewId);
   }
+
+  static async reply(reviewId, replyText) {
+    if (!replyText?.trim()) {
+      throw new Error('Vui lòng nhập nội dung phản hồi');
+    }
+    const res = await ReviewService.reply(reviewId, replyText.trim());
+    return Review.fromAPI(res.data.data || res.data);
+  }
 }
 
 export default ReviewController;

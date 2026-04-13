@@ -9,5 +9,6 @@ public enum NotificationType {
     BOOKING_REJECTED,         // Chủ sân đã từ chối booking
     BOOKING_EXPIRED,          // Booking hết hạn thanh toán
     BOOKING_CANCELLED,        // Người thuê đã hủy đơn đặt sân
-    REVIEW_RECEIVED           // Chủ sân nhận được đánh giá mới
+    REVIEW_RECEIVED,          // Chủ sân nhận được đánh giá mới
+    REVIEW_REPLIED            // Người thuê nhận được phản hồi từ chủ sân
 }

@@ -4,6 +4,7 @@ import PageHeader from '../../components/common/PageHeader';
 import VenueController from '../../controllers/VenueController';
 import ReviewController from '../../controllers/ReviewController';
 import CourtController from '../../controllers/CourtController';
+import UserController from '../../controllers/UserController';
 import '../../styles/Layout.css';
 
 // ✅ Fix ngày: Instant từ Java có thể là số epoch giây hoặc string ISO
@@ -23,6 +24,10 @@ function VenueDetail() {
     const [courtLoading, setCourtLoading] = useState(true);
     const [error, setError] = useState('');
     const [courtError, setCourtError] = useState('');
+    const [currentUser, setCurrentUser] = useState(null);
+    const [replyingId, setReplyingId] = useState(null);
+    const [replyText, setReplyText] = useState('');
+    const [replySubmitting, setReplySubmitting] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -37,10 +42,17 @@ function VenueDetail() {
                     ReviewController.getByVenue(id),
                     CourtController.getByVenue(id),
                 ]);
+                let userData = null;
+                try {
+                    userData = await UserController.getCurrentUser();
+                } catch {
+                    userData = null;
+                }
                 if (isMounted) {
                     setVenue(venueData);
                     setReviews(reviewData);
                     setCourts(courtData);
+                    setCurrentUser(userData);
                 }
             } catch (err) {
                 if (isMounted) {
@@ -61,6 +73,36 @@ function VenueDetail() {
             isMounted = false;
         };
     }, [id]);
+
+    const isVenueOwner = !!(currentUser && venue && currentUser.id === venue.ownerId);
+
+    const handleStartReply = (reviewId) => {
+        setReplyingId(reviewId);
+        setReplyText('');
+    };
+
+    const handleCancelReply = () => {
+        setReplyingId(null);
+        setReplyText('');
+    };
+
+    const handleSubmitReply = async (reviewId) => {
+        if (!replyText.trim()) {
+            alert('Vui lòng nhập nội dung phản hồi');
+            return;
+        }
+        try {
+            setReplySubmitting(true);
+            const updated = await ReviewController.reply(reviewId, replyText);
+            setReviews((prev) => prev.map((r) => (r.id === reviewId ? { ...r, ownerReply: updated.ownerReply } : r)));
+            setReplyingId(null);
+            setReplyText('');
+        } catch (err) {
+            alert(err?.response?.data?.message || err?.message || 'Không thể gửi phản hồi');
+        } finally {
+            setReplySubmitting(false);
+        }
+    };
 
     const addressText = useMemo(() => {
         if (!venue?.address) return '';
@@ -205,6 +247,52 @@ function VenueDetail() {
                                         <span style={{ marginLeft: '6px', color: 'var(--text-secondary)' }}>{review.rating || 0}/5</span>
                                     </div>
                                     <p style={{ margin: '8px 0 0', fontSize: '14px', color: 'var(--text-primary)' }}>{review.comment}</p>
+
+                                    {review.ownerReply && (
+                                        <div style={{ marginTop: '10px', padding: '10px', background: '#f3f4f6', borderLeft: '3px solid #3b82f6', borderRadius: '6px' }}>
+                                            <strong style={{ fontSize: '13px', color: '#1d4ed8' }}>↪ Phản hồi từ chủ sân:</strong>
+                                            <p style={{ margin: '4px 0 0', fontSize: '14px' }}>{review.ownerReply}</p>
+                                        </div>
+                                    )}
+
+                                    {isVenueOwner && !review.ownerReply && replyingId !== review.id && (
+                                        <button
+                                            className="btn btn-primary btn-sm"
+                                            style={{ marginTop: '8px' }}
+                                            onClick={() => handleStartReply(review.id)}
+                                        >
+                                            Phản hồi
+                                        </button>
+                                    )}
+
+                                    {isVenueOwner && replyingId === review.id && (
+                                        <div style={{ marginTop: '8px' }}>
+                                            <textarea
+                                                className="form-control"
+                                                rows={3}
+                                                placeholder="Nhập phản hồi của bạn..."
+                                                value={replyText}
+                                                onChange={(e) => setReplyText(e.target.value)}
+                                                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                                            />
+                                            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                                                <button
+                                                    className="btn btn-success btn-sm"
+                                                    onClick={() => handleSubmitReply(review.id)}
+                                                    disabled={replySubmitting}
+                                                >
+                                                    {replySubmitting ? 'Đang gửi...' : 'Gửi phản hồi'}
+                                                </button>
+                                                <button
+                                                    className="btn btn-secondary btn-sm"
+                                                    onClick={handleCancelReply}
+                                                    disabled={replySubmitting}
+                                                >
+                                                    Hủy
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

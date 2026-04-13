@@ -2,6 +2,7 @@ package com.codewithvy.quanlydatsan.controller;
 
 import com.codewithvy.quanlydatsan.dto.ApiResponse;
 import com.codewithvy.quanlydatsan.dto.ReviewDTO;
+import com.codewithvy.quanlydatsan.dto.ReviewReplyRequest;
 import com.codewithvy.quanlydatsan.dto.ReviewRequest;
 import com.codewithvy.quanlydatsan.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -103,6 +104,29 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.<ReviewDTO>builder()
                 .success(true)
                 .message("Review retrieved successfully")
+                .data(review)
+                .build());
+    }
+
+    /**
+     * Chủ sân phản hồi một review.
+     */
+    @PutMapping("/reviews/{reviewId}/reply")
+    @PreAuthorize("hasRole('OWNER')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Chủ sân phản hồi đánh giá",
+               description = "OWNER phản hồi review của user cho venue mình quản lý")
+    public ResponseEntity<ApiResponse<ReviewDTO>> replyReview(
+            @PathVariable Long reviewId,
+            @Valid @RequestBody ReviewReplyRequest request,
+            Authentication authentication) {
+
+        String ownerPhone = authentication.getName();
+        ReviewDTO review = reviewService.replyToReview(reviewId, request, ownerPhone);
+
+        return ResponseEntity.ok(ApiResponse.<ReviewDTO>builder()
+                .success(true)
+                .message("Reply sent successfully")
                 .data(review)
                 .build());
     }
